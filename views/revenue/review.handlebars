@@ -1,0 +1,193 @@
+<div class="card text-center">
+  <div id="insertStatus" class="card-header">
+    {{group.name}}
+  </div>
+  <div class="card-body">
+    <h5 class="card-title">Details</h5>
+    <p class="card-text">Arrival Date: {{group.dateFrom}}</p>
+    <p class="card-text">Departure Date: {{group.dateTo}}</p>
+    <div id="insertFormDynamically"></div>
+    <p>Conference Space: {{group.conferenceSpace}}</p>
+    <p>Conference Revenue: {{group.conferenceRevenue}}</p>
+    <p>Total Group Revenue: ${{totalRevenue}}</p>
+    <p class="card-text">Other Notes: {{group.otherNotes}}</p>
+    <button id="confirmPurposal" class="btn btn-success"><i class="far fa-thumbs-up"></i> Approve</button>
+    <button id="denyPurposal" class="btn btn-danger"><i class="far fa-thumbs-down"></i> Deny</button>
+  </div>
+  <div class="card-footer text-muted">
+    Submitted on {{group.time}}
+  </div>
+</div>
+
+
+<div class="card">
+      <div class="card-body">
+        <span class="card-title">Comments</span>
+        {{#if user}}
+        <form action="/revenue/review/comment/{{group.id}}" method="post">
+          <div>
+            <textarea class="form-control" name="commentBody"></textarea>
+            <label>Add Comment</label>
+          </div>
+          <input class="btn btn-primary" type="submit" value="Submit">
+        </form>
+        {{else}}
+        <p>Please <a href="/users/login">log in</a> to leave a comment.</p>
+        {{/if}}
+      </div>
+    </div>
+    {{#each group.comments}}
+    <div class="card">
+      <div class="card-body">
+        <h5>{{commentBody}}</h5>
+        <div>
+          <span id="userNameSpan">{{commentUser.name}}</span> 
+          <span id="userBadge">{{commentUser.role}}</span> 
+        </div>
+        <br>
+        <small>Posted: {{commentDate}}</small>
+      </div>
+    </div>
+    {{/each}}
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script>
+  let confirmPurposalButton = document.getElementById('confirmPurposal');
+  let denyPurposalButton = document.getElementById('denyPurposal');
+  let submitFeedbackButton = document.getElementById('feedbackPurposal');
+  denyPurposalButton.addEventListener('click', denyPurposalHandler);
+  confirmPurposalButton.addEventListener('click', confirmPurposalHandler);
+
+  function confirmPurposalHandler() {
+      swal({
+      title: "Approve Proposal?",
+      text: "Approving this proposal will allow the sales agent to submit a contract to the client.",
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    })
+    .then((willApprove) => {
+      if (willApprove) {
+        swal("Proposal approved!", {
+          icon: "success",
+        })
+        .then(() => {
+        let payload = {
+          id: '{{group.id}}',
+          status: 'Approved'
+        }
+        fetchFunction(payload);
+        })
+      } else {
+        swal("Action canceled.");
+      }
+    });
+  }
+
+    function denyPurposalHandler() {
+      swal({
+      title: "Deny Proposal?",
+      text: "Denying this proposal will stop any further progress with this client.",
+      icon: "error",
+      buttons: true,
+      dangerMode: true,
+    })
+    .then((willApprove) => {
+      if (willApprove) {
+        swal("Proposal denied.", {
+          icon: "success",
+        })
+        .then(() => {
+        let payload = {
+          id: '{{group.id}}',
+          status: 'Denied'
+        }
+        fetchFunction(payload);
+        })
+      } else {
+        swal("Action canceled.");
+      }
+    });
+  }
+
+  function fetchFunction(data) {
+    fetch('http://localhost:3000/revenue/review/update', {
+    method: 'put',
+    mode: 'cors',
+    headers: {
+      'Accept':'application/json, text/plain, */*',
+      'Content-type': 'application/json',
+    },
+    body: JSON.stringify({data})
+  })
+    .then((res) => res.json())
+    .catch((err) => console.log(err));
+  }
+
+  // Create holding container for room type, rate and nights
+  let holdingContainer = document.getElementById('insertFormDynamically');
+  let checkLen = '{{group.roomType.length}}';
+  // create inner div and dynamically add the input fields 
+  // need to change input fields so they can't be edited 
+  if(checkLen > 0) {
+      for(let i = 0; i < checkLen; i++) {
+          let container = document.createElement('div');
+          container.innerHTML = `
+              <div class="form-row" id="row-${i}">
+                      <div class="form-group col-md-4">
+                      <label for="roomTypeSelect-${i}">Room Type:</label>
+                      <span id="roomTypeSelect-${i}" name="roomTypeSelect-${i}"></span>
+                      </div>
+                      <div class="form-group col-md-4">
+                      <label for="purposedRate-${i}">Purposed Rate $</label>
+                      <span id="purposedRate-${i}" name="purposedRate-${i}"></span>  
+                      </div>
+                      <div class="form-group col-md-4">
+                      <label for="roomsPerNight-${i}">Rooms per Night:</label>
+                      <span id="roomsPerNight-${i}" name="roomsPerNight-${i}"></span>
+                      </div>
+                      
+                  </div>
+          `;
+          insertAfter(container,holdingContainer);
+      }
+  }
+  // add the room type, night and other values to input fields from data source
+  let rateValues = '{{group.purposedRate}}',
+      rateArray = rateValues.split(','),
+      roomsValues = '{{group.roomsPerNight}}',
+      roomsArray = roomsValues.split(','),
+      typeValues = '{{group.roomType}}',
+      typeArray = typeValues.split(',');
+  for(let i = 0; i < checkLen; i++) {
+      let purposedRateInput = document.getElementById('purposedRate-' + i);
+      let roomsPerNightInput = document.getElementById('roomsPerNight-' + i);
+      let roomTypeInput = document.getElementById('roomTypeSelect-' + i);
+      roomTypeInput.innerText = typeArray[i];
+      purposedRateInput.innerText = rateArray[i];
+      roomsPerNightInput.innerText = roomsArray[i];
+  }
+
+let userArray = document.querySelectorAll('#userBadge');
+let userArrayFormatted = Array.from(userArray);
+
+formatUserBadge(userArrayFormatted)
+
+function formatUserBadge(array) {
+  for(let i = 0; i < array.length; i++) {
+    if(array[i].innerText === 'Revenue Manager') {
+      array[i].classList.add('badge', 'badge-pill', 'badge-dark')
+      
+      array[i].innerHTML = `<i class="fas fa-dollar-sign"></i> Revenue Manager`;
+    }
+    else if(array[i].innerText === 'Sales Agent') {
+      array[i].classList.add('badge', 'badge-pill', 'badge-info')
+      array[i].innerHTML = `<i class="fas fa-bolt"></i> Sales Agent`;
+    }
+  }
+}
+
+  function insertAfter(newNode, referenceNode) {
+    referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
+  }
+   
+</script>

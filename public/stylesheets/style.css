@@ -1,0 +1,120 @@
+.hidden {
+    display: none;
+}
+
+#hiddenVal {
+    display: none;
+}
+
+#statusUpdateSelect {
+    font-family: 'FontAwesome';
+}
+
+.toggleDisplay {
+  display: none;
+}
+
+#clientCanvasContainer {
+    display: inline-block;
+    height: 300px;
+    width: 300px;
+}
+
+#timeCanvasContainer {
+    display: inline-block;
+    height: 200px;
+    width: 600px;
+}
+
+#sourceOfBusinessContainer {
+    display: inline-block;
+    height: 300px;
+    width: 300px;
+}
+
+#cancelationReasonContainer {
+    display: inline-block;
+    height: 300px;
+    width: 300px;
+}
+
+/* Format text was to hide text past a certain length, if we were showing comments on that page */
+#formatText{
+    width: 400px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#formatText:hover {
+    text-overflow: clip;
+    white-space: normal;
+}
+
+#clientStatusCell {
+    text-align: center;
+}
+
+.cancelSymbol {
+    color: tomato;
+    font-size: 1em;
+}
+
+.confirmSymbol {
+    color: forestgreen;
+    font-size: 1em;
+}
+
+.pendingSymbol {
+    color: goldenrod;
+    font-size: 1em;
+}
+
+#dateFromCell {
+    white-space: nowrap;
+}
+
+#userNameSpan {
+    font-family: 'Roboto', sans-serif;
+    color: slategray;
+    font-size: 0.9em;
+}
+
+#deleteTrashIcon{
+    color:red;
+}
+
+#deleteBtn {
+    display: block;
+    height: 30px;
+    width: 30px;
+}
+
+.colorFlash{
+    color:red;
+}
+
+#insertTable {
+    margin-top: 30px;
+}
+
+#btnGroup {
+   margin: 10px;
+}
+
+#btnGroup button {
+    margin: 3px;
+}
+
+#commentContainer {
+    margin-top: 20px;
+    width: 40em;
+}
+
+.card.proposalCard {
+    display: inline-block;
+    margin: 0.3em;
+}
+
+
+

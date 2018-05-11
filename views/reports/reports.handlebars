@@ -1,0 +1,191 @@
+<h2>Reports</h2>
+<div id="msgContainer"></div>
+
+<div class="form-control col-md-4">
+    <label for="reportStartDate">Report Date</label>
+    <input type="date" name="reportStartDate" class="form-control" id="reportStartDate">
+</div>
+
+<div id="btnGroup">
+    <button id="generateWeeklyReport" type="button" class="btn btn-primary btn-sm">Preview Weekly Report</button>
+    <button id="submitWeeklyReport" type="button" class="btn btn-success btn-sm">Submit Weekly Report</button>
+</div>
+
+
+<div id="insertTable"></div>
+
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script>
+
+
+let generateReportButton = document.getElementById('generateWeeklyReport');
+let submitReportButton = document.getElementById('submitWeeklyReport');
+
+let report = document.getElementById('generatedReport');
+generateReportButton.addEventListener('click', generateReport);
+submitReportButton.addEventListener('click', submitReport);
+
+
+generateReportButton.disabled = true;
+submitReportButton.disabled = true;
+
+let datePicker = document.getElementById('reportStartDate');
+
+datePicker.addEventListener('change', () => {
+    generateReportButton.disabled = false;
+    submitReportButton.disabled = false;
+});
+
+let tableContainer = document.getElementById('insertTable');
+
+
+function generateReport() {
+    swal({
+        title: "Preview Weekly Report?",
+        text: "Note: This report looks back 7 days and returns all activity up to the selected date.",
+        icon: "info",
+        buttons: true,
+    })
+    .then((willGenerate) => {
+        let date = document.getElementById('reportStartDate').value;
+        if (willGenerate) {
+            swal("Preview ready to view.", {
+            icon: "success",
+            })
+            .then((willClose) => {
+                let payload = {
+                message: 'reportEmitted',
+                date: date
+                }   
+                fetch('http://localhost:3000/reports', {
+                method: 'post',
+                mode: 'cors',
+                headers: {
+                'Accept':'application/json, text/plain, */*',
+                'Content-type': 'application/json',
+                },
+                body: JSON.stringify({payload})
+                })
+                .then((res) => res.json())
+                .then((res) => {
+                    if(res.length === 0) {
+                        tableContainer.innerHTML = `
+                           <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                <strong>No proposals found!</strong> 
+                                <p>Please check your dates and submit again.</p>
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        `;
+                    }
+                    else {
+
+                    let namesArray = [];
+                    let arrivalDateArray = [];
+                    let departureDateArray = [];
+                    let clientStatusArray = [];
+                    let otherNotesArray = [];
+                    let groups = res.groups;
+
+                    for(var i = 0; i < groups.length; i++) {
+                        namesArray.push(groups[i].name);
+                        arrivalDateArray.push(groups[i].dateFrom);
+                        departureDateArray.push(groups[i].dateTo);
+                        clientStatusArray.push(groups[i].clientStatus);
+                        otherNotesArray.push(groups[i].otherNotes)
+                    }
+
+                    tableContainer.innerHTML = `
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Group Name</th>
+                                <th>Arrival Date</th>
+                                <th>Departure Date</th>
+                                <th>Client Status</th>
+                                <th>Other Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        ${createTable()}
+                        </tbody>  
+                    <table>
+                    `;
+                    function createTable() {
+                        let len = groups.length;
+                        let table = '';
+                        for(var i = 0; i < len; i++ ) {
+                            table += `
+                                <tr>
+                                    <td align="center">${namesArray[i]}</td>
+                                    <td align="center">${arrivalDateArray[i]}</td>
+                                    <td align="center">${departureDateArray[i]}</td>
+                                    <td align="center">${clientStatusArray[i]}</td>
+                                    <td align="center">${otherNotesArray[i]}</td>
+                                </tr>
+                                `;
+                            }
+                        return table;
+                        } 
+                    }
+                })
+                .catch((err) => console.log(err));
+            })
+
+        } else {
+            swal("Preview canceled.");
+        }
+        
+    })
+}
+function submitReport() {
+    swal({
+        title: "Submit Weekly Report?",
+        text: "Once submitted, you will not be able to edit this weeks report.",
+        icon: "warning",
+        buttons: true,
+        dangerMode: true,
+    })
+    .then((willSubmit) => {
+        let date = document.getElementById('reportStartDate').value;
+        if (willSubmit) {
+            swal("Submitting Report...", {
+            icon: "success",
+            })
+            .then((willClose) => {
+            let payload = {
+                message: 'reportEmitted',
+                date: date
+            }
+            fetch('http://localhost:3000/reports/submit', {
+                method: 'post',
+                mode: 'cors',
+                headers: {
+                'Accept':'application/json, text/plain, */*',
+                'Content-type': 'application/json',
+                },
+                body: JSON.stringify({payload})
+                })
+                .then((res) => res.json())
+                .then((res) => {
+                    let msgContainer = document.getElementById('msgContainer');
+                    msgContainer.innerHTML = `
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <p>${res.msg}</p>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    `;
+                })
+                .catch((err) => console.log(err));
+            })
+            
+        } else {
+            swal("Report not submitted.  Please check your data and submit.");
+        }
+    }); 
+}
+
+</script>

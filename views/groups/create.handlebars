@@ -1,0 +1,145 @@
+<h1>Create</h1>
+<form action="/groups/create/new" method="POST" onsubmit="groupSubmitBtn.disabled = true; return true;">
+    <div class="form-group">
+        <label for="groupName">Group Name</label>
+        <input type="text" class="form-control col-md-4" name="groupName" id="groupName" placeholder="Group Name">
+    </div>
+    <div class="row">
+        <div class="form-group col-md-4">
+            <label for="groupDateFrom">Arrival Date</label>
+            <input type="date" name="groupDateFrom" class="form-control" id="groupDateFrom">
+        </div>
+        <div class="form-group col-md-4">
+            <label for="groupDateTo">Departure Date</label>
+            <input type="date" name="groupDateTo" class="form-control" id="groupDateTo">
+        </div>
+    </div>
+    <div class="form-row" id="row-1">
+    <div class="form-group col-md-4">
+      <label for="roomTypeSelect">Room Type</label>
+      {{!-- we are removing the - 1 from room type select --}}
+        <select id="roomTypeSelect" class="form-control" name="roomTypeSelect">
+            <option selected disabled>Choose...</option>
+            <option>LDG</option>
+            <option>PS</option>
+            <option>TOF</option>
+            <option>DOF</option>
+            <option>Villa</option>
+      </select>
+    </div>
+    <div class="form-group col-xs-2">
+      <label for="purposedRate">Purposed Rate</label>
+      <input type="number" class="form-control" name="purposedRate" placeholder="$" min="0">  
+    </div>
+    <div class="form-group col-xs-2">
+      <label for="roomsPerNight">Rooms per Night</label>
+      <input type="number" class="form-control" name="roomsPerNight" placeholder="#" min="0">
+    </div>
+    </div>
+    <button id="addmore" class="btn btn-secondary">Add Another Room Type</button>
+    <div class="form-group">
+        <label for="sourceOfBusiness">Source of Business</label>
+        <select id="sourceOfBusiness" class="form-control col-md-4" name="sourceOfBusiness">
+            <option selected disabled>Choose...</option>
+            <option>Phone</option>
+            <option>Contact Form Submission</option>
+            <option>Repeat Guest</option>
+      </select>
+    </div>
+    <div class="form-group">
+        <label>Conference Space:  </label>
+        <div class="form-check form-check-inline">
+            <input id="radioInputYes" class="form-check-input" type="radio" name="conferenceOption" id="conferenceYes" value="Yes">
+            <label class="form-check-label" for="conferenceYes">Yes</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input id="radioInputNo" class="form-check-input" type="radio" name="conferenceOption" id="conferenceNo" value="No">
+            <label class="form-check-label" for="conferenceNo">No</label>
+        </div>
+    </div>
+    <div id="conferenceRevenue" class="form-row hidden">
+        <div class="form-group col-xs-2">
+            <label for="conferenceRevenue">Cost</label>
+            <input id="conferenceRevenueInput" type="number" class="form-control" name="conferenceRevenue" placeholder="$" min="0">
+        </div>
+    </div>
+
+    <div class="input-group">
+        <label for="otherNotes">Notes</label>
+        <textarea class="form-control" name="otherNotes" id="otherNotes" rows="3"></textarea>
+    </div> 
+  <button id="groupSubmitBtn" type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+
+<script>
+    const maxFieldCount = 5;
+    let currentFieldCount = 1;
+    let addMore = document.getElementById('addmore');
+    let holdingContainer = document.getElementById('row-1');
+    addMore.addEventListener('click', addMoreFields);
+    function addMoreFields(e) {
+        e.preventDefault();
+        if(currentFieldCount < maxFieldCount) {
+            currentFieldCount++;
+            let container = document.createElement('div');
+            container.innerHTML = `
+                    <div class="form-row" id="row-${currentFieldCount}"><button type="button" class="btn btn-secondary btn-sm" id="deleteBtn"><i id="deleteTrashIcon" class="fas fa-trash-alt"></i></button>
+                        <div class="form-group col-md-4">
+                        <label for="roomTypeSelect-${currentFieldCount}">Room Type</label>
+                            <select id="roomTypeSelect" class="form-control" name="roomTypeSelect-${currentFieldCount}">
+                                <option selected disabled>Choose...</option>
+                                <option value="LDG">LDG</option>
+                                <option value="PS">PS</option>
+                                <option value="TOF">TOF</option>
+                                <option value="DOF">DOF</option>
+                                <option value="Villa">Villa</option>
+                        </select>
+                        </div>
+                        <div class="form-group col-xs-2">
+                        <label for="purposedRate-${currentFieldCount}">Purposed Rate</label>
+                        <input type="number" class="form-control" name="purposedRate-${currentFieldCount}" placeholder="$">  
+                        </div>
+                        <div class="form-group col-xs-2">
+                        <label for="roomsPerNight-${currentFieldCount}">Rooms per Night</label>
+                        <input type="number" class="form-control" name="roomsPerNight-${currentFieldCount}" placeholder="#">
+                        </div>
+                    </div>        
+            `;
+            insertAfter(container,holdingContainer);
+            if(currentFieldCount === maxFieldCount) addMore.disabled = true;
+        }
+
+        let deleteButton = document.getElementById('deleteBtn');
+        deleteButton.addEventListener('click', (e) => {
+            currentFieldCount--;
+            if(e.target.type === 'button') {
+                e.target.parentNode.remove();
+            }
+            else if(e.target.type === undefined) {
+                e.target.parentNode.parentNode.parentNode.remove()
+            }  
+            if(currentFieldCount != maxFieldCount) addMore.disabled = false;
+        });
+  
+    }   
+    function insertAfter(newNode, referenceNode) {
+        referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
+    } 
+
+    // chek radio selection and toggle additional revenue field
+    let radioYes = document.getElementById('radioInputYes');
+    let radioNo = document.getElementById('radioInputNo');
+    let conferenceRevenue = document.getElementById('conferenceRevenue');
+    radioYes.addEventListener('click', toggleCoferenceRevenueInput);
+    radioNo.addEventListener('click', toggleCoferenceRevenueInput);
+    function toggleCoferenceRevenueInput(e) {
+        if(e.target === radioYes) {
+            conferenceRevenue.classList.remove('hidden')
+        }
+        if(e.target === radioNo) {
+            conferenceRevenue.classList.add('hidden');
+        }
+    };  
+
+</script>

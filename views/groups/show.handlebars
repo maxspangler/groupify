@@ -1,0 +1,188 @@
+<h2>{{group.name}}</h2>
+<p>Edit Group Details: <a href="/groups/edit/{{group.id}}"><i class="fas fa-pencil-alt"></i></a></p>
+<p>Client Status: <em id="clientStatusParagraph">{{group.clientStatus}}</em></p>
+<p id="managerStatusAlert" role="alert">Revenue Manager Status: <em>{{group.managerStatus}}</em></p>
+<div class="form-group">
+    <label for="statusUpdateSelect"></label>
+    <select class="form-control col-md-4" id="statusUpdateSelect">
+      <option disabled selected>Update Status</option>
+      <option>Confirmed</option>
+      <option>Pending</option>
+      <option>Canceled</option>
+      </select>
+</div>
+<button id="submitChangeStatus" class="btn btn-primary">Update Status</button>
+<div id="cancelDiv"></div>
+    <div id="commentContainer">
+      <div class="card">
+        <div class="card-body">
+          <span class="card-title">Comments</span>
+          {{#if user}}
+          <form action="/groups/comment/{{group.id}}" method="post">
+            <div>
+              <textarea class="form-control" name="commentBody"></textarea>
+              <label><i class="fas fa-comment"></i> Add Comment</label>
+            </div>
+            <input class="btn btn-primary" type="submit" value="Submit">
+          </form>
+          {{else}}
+          <p>Please <a href="/users/login">log in</a> to leave a comment.</p>
+          {{/if}}
+        </div>
+      </div>
+      {{#each group.comments}}
+      <div class="card">
+        <div class="card-body">
+          <h5>{{commentBody}}</h5>
+          <div>
+            <span id="userNameSpan">{{commentUser.name}}</span> 
+            <span id="userBadge">{{commentUser.role}}</span>
+          </div>
+          <br>
+          <small>Posted: {{commentDate}}</small>
+        </div>
+      </div>
+      {{/each}}
+    </div>
+
+
+
+
+<script>
+let buttonSubmit = document.getElementById('submitChangeStatus');
+let statusSelect = document.getElementById('statusUpdateSelect');
+let clientStatusParagraph = document.getElementById('clientStatusParagraph');
+let statusSelectOption;
+let cancelTextCreated;
+buttonSubmit.disabled = true;
+
+let userArray = document.querySelectorAll('#userBadge');
+let userArrayFormatted = Array.from(userArray);
+formatUserBadge(userArrayFormatted)
+
+function formatUserBadge(array) {
+  for(let i = 0; i < array.length; i++) {
+    if(array[i].innerText === 'Revenue Manager') {
+      array[i].classList.add('badge', 'badge-pill', 'badge-dark')
+      
+      array[i].innerHTML = `<i class="fas fa-dollar-sign"></i> Revenue Manager`;
+    }
+    else if(array[i].innerText === 'Sales Agent') {
+      array[i].classList.add('badge', 'badge-pill', 'badge-info')
+      array[i].innerHTML = `<i class="fas fa-bolt"></i> Sales Agent`;
+    }
+  }
+}
+
+
+
+// add or remove cancelation field on change event
+statusSelect.addEventListener('change', () => {
+  statusSelectOption = statusSelect.options[statusSelect.selectedIndex].text;
+  console.log(statusSelectOption)
+  if(statusSelectOption == 'Canceled') {
+    cancelTextCreated = true;
+    buttonSubmit.disabled = true;
+    let cancelContainer = document.getElementById('cancelDiv');
+    cancelContainer.innerHTML = `
+      <div class="form-group col-md-4" id="cancelationReasonDiv">
+        <label for="roomTypeSelect">Cancelation Reason</label>
+          <select id="cancelationReasonSelect" class="form-control" name="cancelationReasonSelect">
+              <option selected disabled>Choose...</option>
+              <option>Rates to high</option>
+              <option>Rooms unavailable</option>
+              <option>Conference space unavailable</option>
+              <option>Conference space too small/limited</option>
+              <option>Not enough large units</option>
+        </select>
+      </div>
+    `;
+      buttonSubmit.disabled = false;
+  }
+  else if(statusSelectOption == 'Confirmed' || statusSelectOption == 'Pending' ) {
+    buttonSubmit.disabled = false;
+    if(cancelTextCreated == true) {
+      let cancelInput = document.getElementById('cancelationReasonDiv');
+      cancelInput.remove();
+      cancelTextCreated = false;
+    }
+  }
+});
+
+buttonSubmit.addEventListener('click', submitUpdate);
+
+// submit cancelation reason
+function submitUpdate(e) {
+  let statusSelect = document.getElementById('statusUpdateSelect');
+  let statusSelectOption = statusSelect.options[statusSelect.selectedIndex].text;
+
+  let payload = {
+  id: '{{group.id}}',
+  status: statusSelectOption
+}   
+
+  let cancelSelectOption = document.getElementById('cancelationReasonSelect');
+  // need to protect against the default select option
+  if(cancelSelectOption != null) {
+      payload = {
+      id: '{{group.id}}',
+      status: statusSelectOption,
+      cancelationReason: cancelSelectOption.options[cancelSelectOption.selectedIndex].text,
+    }
+  }
+
+  fetch('http://localhost:3000/groups/update/status', {
+    method: 'put',
+    mode: 'cors',
+    headers: {
+      'Accept':'application/json, text/plain, */*',
+      'Content-type': 'application/json',
+    },
+    body: JSON.stringify({payload})
+  })
+    .then((res) => res.json())
+    .catch((err) => console.log(err))
+    .then(response => console.log(response))
+    //.then(location.reload())
+    .then(() => {
+      clientStatusParagraph.innerText = statusSelectOption;
+      clientStatusParagraph.classList.add('colorFlash');
+      setTimeout(() => {
+        clientStatusParagraph.classList.remove('colorFlash')
+      },1000);
+    })
+    e.preventDefault();
+};
+
+// if group has already been canceled, generate input field with existing reason
+  let updatedStatus = '{{group.clientStatus}}';
+  let cancelationReason = '{{group.cancelationReason}}'
+  if(updatedStatus == 'Canceled' && cancelationReason != '') {
+    cancelTextCreated = true;
+    let cancelContainer = document.getElementById('cancelDiv');
+    cancelContainer.innerHTML = `
+      <div class="form-group col-md-4" id="cancelationReasonDiv">
+        <label for="roomTypeSelect">Cancelation Reason</label>
+          <select id="cancelationReasonSelect" class="form-control" name="cancelationReasonSelect">
+              <option selected disabled>Choose...</option>
+              <option>Rates to high</option>
+              <option>Rooms unavailable</option>
+              <option>Conference space unavailable</option>
+              <option>Conference space too small/limited</option>
+              <option>Not enough large units</option>
+        </select>
+      </div>
+    `;
+    // Loop through select options until we match the one coming from the DB
+    let options = cancelationReasonSelect.options;
+    for(var i = 0; i < options.length; i++) {
+      if(options[i].value === cancelationReason) {
+       cancelationReasonSelect.selectedIndex = i;
+      }
+    }
+  };
+
+  
+
+
+</script>

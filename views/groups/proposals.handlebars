@@ -1,0 +1,75 @@
+
+
+<div class="container">
+  <h2>Proposals</h2>
+  <input class="form-control" id="myInput" type="text" placeholder="Search..">
+  <br>
+  <table class="table table-bordered table-striped">
+    <thead>
+      <tr>
+        <th>Group Name</th>
+        <th>Arrival Date</th>
+        <th>Client Status</th>
+        <th>Revenue Manager Status</th>
+      </tr>
+    </thead>
+    <tbody id="myTable">
+        {{#if groups}}
+            {{#each groups}}
+            <tr>
+                {{#if ../sales}}<td><a href="/groups/{{id}}">{{name}}</a></td>{{/if}}
+                {{#if ../revenue}}<td><a href="/revenue/review/{{id}}">{{name}}</a></td>{{/if}}
+                <td id="dateFromCell">{{dateFrom}}</td>
+                <td id="clientStatusCell" class="statusText">{{clientStatus}}  </td>
+                <td class="managerText"><div id="formatText">{{managerStatus}}</div></td>
+            </tr>
+            {{/each}}
+        {{/if}}
+    </tbody>
+  </table>
+</div>
+
+
+<script>
+let statusText = document.getElementsByClassName('statusText');
+let input = document.getElementById('myInput');
+let statusArray = Array.from(statusText);
+
+statusArray.forEach((status) => {
+    if(status.innerText == 'Confirmed') {
+        let symbol = document.createElement('i');
+        symbol.classList.add('far', 'fa-check-circle','confirmSymbol');
+        status.appendChild(symbol);
+    }
+    else if(status.innerText == 'Pending') {
+        let symbol = document.createElement('i');
+        symbol.classList.add('far', 'fa-clock', 'pendingSymbol');
+        status.appendChild(symbol);
+    }
+    else {
+        let symbol = document.createElement('i');
+        symbol.classList.add('fas', 'fa-ban', 'cancelSymbol');
+        status.appendChild(symbol);
+    }
+});
+
+input.addEventListener('keyup', () => {
+    let inputValue = input.value.toLowerCase();
+    let table = document.getElementById('myTable');
+    let tr = table.getElementsByTagName('tr');
+    for(let i = 0; i < tr.length; i++) {
+        td = tr[i].getElementsByTagName("td")[0];
+        if(td) {
+            if(td.innerHTML.toLowerCase().indexOf(inputValue) > -1) {
+                tr[i].style.display = "";
+            }
+            else {
+                 tr[i].style.display = "none";
+            }
+
+        }
+    }
+    
+});
+
+</script>

@@ -1,0 +1,195 @@
+<h1>Edit</h1>
+<form action="/groups/edit/{{group.id}}?_method=PUT" method="POST" onsubmit="updateBtn.disabled = true; return true;">
+    <div class="form-group">
+        <label for="groupName">Group Name</label>
+        <input type="text" class="form-control col-md-4" name="groupName" id="groupName" value="{{group.name}}">
+    </div>
+    <div class="row">
+        <div class="form-group col-md-4">
+            <label for="groupDateFrom">Start Date</label>
+            <input type="date" name="groupDateFrom" class="form-control" id="groupDateFrom" value="{{group.dateFrom}}">
+        </div>
+        <div class="form-group col-md-4">  
+            <label for="groupDateTo">End Date</label>
+            <input type="date" name="groupDateTo" class="form-control" id="groupDateTo" value="{{group.dateTo}}">
+        </div>
+    </div>
+    <div><button id="addBtn" type="button" class="btn btn-success" onclick="addInput()">Add Another Room Type <i class="fas fa-plus"></i></button></div>
+
+    <div id="insertFormDynamically"></div>
+    <div class="form-group">
+        <label for="sourceOfBusiness">Source of Business</label>
+        <select id="sourceOfBusiness" class="form-control col-md-4" name="sourceOfBusiness">
+            <option selected disabled>Choose...</option>
+            <option>Phone</option>
+            <option>Contact Form Submission</option>
+            <option>Repeat Guest</option>
+      </select>
+    </div>
+    <div class="form-group">
+        <label>Conference Space:  </label>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="conferenceOption" id="conferenceYes" value="Yes">
+            <label class="form-check-label" for="conferenceYes">Yes</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="conferenceOption" id="conferenceNo" value="No">
+            <label class="form-check-label" for="conferenceNo">No</label>
+        </div>
+    </div>
+
+    <div id="conferenceRevenue" class="form-row hidden">
+        <div class="form-group col-xs-2">
+            <label for="conferenceRevenue">Cost</label>
+            <input id="conferenceRevenueInput" type="number" class="form-control" name="conferenceRevenue" placeholder="$" min="0">
+        </div>
+    </div>
+
+    <div class="input-group">
+        <label for="otherNotes">Notes</label>
+        <textarea class="form-control" name="otherNotes" id="otherNotes" rows="3">{{group.otherNotes}}</textarea>
+    </div> 
+
+  <button id="updateBtn" type="submit" class="btn btn-success">Update</button>
+</form>
+
+<script>
+    let holdingContainer = document.getElementById('insertFormDynamically');
+    let checkLen = '{{group.roomType.length}}';
+    let updateBtn = document.getElementById('updateBtn');
+    let addBtn = document.getElementById('addBtn');
+    // set source of bus
+    let sourceOfBusiness = '{{group.sourceOfBusiness}}';
+    let sourceOfBusinessSelect = document.getElementById('sourceOfBusiness');
+    sourceOfBusinessSelect.value = sourceOfBusiness;
+    // create div and add fields
+    if(checkLen > 0) {
+        for(let i = 0; i < checkLen; i++) {
+            let container = document.createElement('div');
+            container.innerHTML = `
+                <div class="form-row" id="row-${i}">
+                        <div class="form-group col-md-4">
+                        <label for="roomTypeSelect-${i}">Room Type <button id="removeBtn-${i}" type="button" class="btn btn-danger" onclick="removeInput(${i})"><i class="fas fa-trash-alt"></i></button></label>
+                            <select id="roomTypeSelect-${i}" class="form-control" name="roomTypeSelect-${i}">
+                                <option selected disabled>Choose...</option>
+                                <option value="LDG">LDG</option>
+                                <option value="PS">PS</option>
+                                <option value="TOF">TOF</option>
+                                <option value="DOF">DOF</option>
+                                <option value="Villa">Villa</option>
+                        </select>
+                        </div>
+                        <div class="form-group col-xs-2">
+                        <label for="purposedRate-${i}">Purposed Rate</label>
+                        <input id="purposedRate-${i}" type="number" class="form-control" name="purposedRate-${i}" placeholder="$" value="">  
+                        </div>
+                        <div class="form-group col-xs-2">
+                        <label for="roomsPerNight-${i}">Rooms per Night</label>
+                        <input id="roomsPerNight-${i}" type="number" class="form-control" name="roomsPerNight-${i}" placeholder="#">
+                        </div>
+                    </div>
+            `;
+            insertAfter(container,holdingContainer);
+        }
+    }
+    // populate fields
+    let rateValues = '{{group.purposedRate}}',
+        rateArray = rateValues.split(','),
+        roomsValues = '{{group.roomsPerNight}}',
+        roomsArray = roomsValues.split(','),
+        typeValues = '{{group.roomType}}',
+        typeArray = typeValues.split(',');
+    for(let i = 0; i < checkLen; i++) {
+        let purposedRateInput = document.getElementById('purposedRate-' + i);
+        let roomsPerNightInput = document.getElementById('roomsPerNight-' + i);
+        let roomTypeInput = document.getElementById('roomTypeSelect-' + i);
+        roomTypeInput.value = typeArray[i];
+        purposedRateInput.value = rateArray[i];
+        roomsPerNightInput.value = roomsArray[i];
+    }   
+            
+    function removeInput(id) {
+        let rowToRemove = document.getElementById("row-" + id);
+        rowToRemove.remove();
+        checkLen--;
+       if(checkLen === 0) {
+           updateBtn.disabled = true;
+           addBtn.innerHTML = 'Add a Room Type <i class="fas fa-plus"></i>'
+       }
+    }
+
+    function addInput() {
+        let i = checkLen;
+        checkLen++;
+        i++;
+      
+        let container = document.createElement('div');
+        container.innerHTML = `
+            <div class="form-row" id="row-${i}">
+                <div class="form-group col-md-4">
+                <label for="roomTypeSelect-${i}">Room Type <button id="removeBtn-${i}" type="button" class="btn btn-danger" onclick="removeInput(${i})"><i class="fas fa-trash-alt"></i></button></label>
+                    <select id="roomTypeSelect-${i}" class="form-control" name="roomTypeSelect-${i}">
+                        <option selected disabled>Choose...</option>
+                        <option value="LDG">LDG</option>
+                        <option value="PS">PS</option>
+                        <option value="TOF">TOF</option>
+                        <option value="DOF">DOF</option>
+                        <option value="Villa">Villa</option>
+                    </select>
+                </div>
+                <div class="form-group col-xs-2">
+                <label for="purposedRate-${i}">Purposed Rate</label>
+                <input id="purposedRate-${i}" type="number" class="form-control" name="purposedRate-${i}" placeholder="$" value="" min="0">  
+                </div>
+                <div class="form-group col-xs-2">
+                <label for="roomsPerNight-${i}">Rooms per Night</label>
+                <input id="roomsPerNight-${i}" type="number" class="form-control" name="roomsPerNight-${i}" placeholder="#" min="0">
+                </div>
+            </div>
+            `;
+        insertAfter(container,holdingContainer);
+        if(checkLen > 0)  {
+            updateBtn.disabled = false;
+            addBtn.innerHTML = 'Add Another Room Type <i class="fas fa-plus"></i>'
+        }
+    }
+
+    function insertAfter(newNode, referenceNode) {
+        referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
+    }
+
+    
+    // Configure radio button actions
+    let value = '{{group.conferenceSpace}}';
+    let conferenceRevenue = document.getElementById('conferenceRevenue');
+    let conferenceRevenueInput = document.getElementById('conferenceRevenueInput');
+    function checkYes() {
+        document.getElementById("conferenceYes").checked = true;
+        // add group rev field and populate data
+        conferenceRevenue.classList.remove('hidden');
+        conferenceRevenueInput.value = '{{group.conferenceRevenue}}'
+    } 
+    function checkNo() {
+        document.getElementById("conferenceNo").checked = true;
+    }         
+    if(value === 'Yes') checkYes();
+    if(value === 'No') checkNo();
+
+    // toggle hidden class on revenue input field
+
+    let conferenceYes = document.getElementById('conferenceYes');
+    let conferenceNo = document.getElementById('conferenceNo');
+    conferenceYes.addEventListener('click', toggleCoferenceRevenueInput);
+    conferenceNo.addEventListener('click', toggleCoferenceRevenueInput);
+    function toggleCoferenceRevenueInput(e) {
+        if(e.target === conferenceYes) {
+            conferenceRevenue.classList.remove('hidden')
+        }
+        if(e.target === conferenceNo) {
+            conferenceRevenueInput.value = 0;
+            conferenceRevenue.classList.add('hidden');
+        }
+    }; 
+
+
+</script>

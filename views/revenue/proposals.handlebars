@@ -1,0 +1,51 @@
+
+<div class="container">
+  <h2>Oustanding Proposals</h2>
+  <input class="form-control" id="myInput" type="text" placeholder="Search..">
+  <br>
+  <table class="table table-bordered table-striped">
+    <thead>
+      <tr>
+        <th>Group Name</th>
+        <th>Arrival Date</th>
+        <th>Departure Date</th>
+        <th>Client Status</th>
+      </tr>
+    </thead>
+    <tbody id="myTable">
+        {{#if groups}}
+            {{#each groups}}
+            <tr>
+                <td><a href="/revenue/review/{{id}}">{{name}}</a></td>
+                <td id="dateFromCell">{{dateFrom}}</td>
+                <td id="dateFromCell">{{dateTo}}</td>
+                <td id="clientStatusCell" class="statusText">{{clientStatus}}  </td>
+            </tr>
+            {{/each}}
+        {{/if}}
+    </tbody>
+  </table>
+</div>
+
+
+<script>
+    let input = document.getElementById('myInput');
+    input.addEventListener('keyup', () => {
+    let inputValue = input.value.toLowerCase();
+    let table = document.getElementById('myTable');
+    let tr = table.getElementsByTagName('tr');
+    for(let i = 0; i < tr.length; i++) {
+        td = tr[i].getElementsByTagName("td")[0];
+        if(td) {
+            if(td.innerHTML.toLowerCase().indexOf(inputValue) > -1) {
+                tr[i].style.display = "";
+            }
+            else {
+                 tr[i].style.display = "none";
+            }
+
+        }
+    }
+    
+});
+</script>

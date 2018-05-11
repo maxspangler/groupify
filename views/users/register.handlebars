@@ -1,0 +1,26 @@
+<div class="row">
+  <div class="col-md-6 mx-auto">
+    <div class="card card-body">
+      <h3 class="text-center">Account Register</h3>
+      <form action="/users/register" method="post" onsubmit="submitBtn.disabled = true; return true;">
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input type="text" class="form-control" required name="name">
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" class="form-control" required name="email">
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" class="form-control" required name="password">
+        </div>
+        <div class="form-group">
+          <label for="password">Confirm Password</label>
+          <input type="password" class="form-control" required name="password2">
+        </div>
+        <button id="submitBtn" type="submit" class="btn btn-primary">Submit</button>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,212 @@
+
+<div id="clientCanvasContainer"><canvas id="clientStatusChart" width="200" height="200"></canvas></div>
+<div id="timeCanvasContainer"><canvas id="timeCanvas" width="900" height="400"></canvas></div>
+<div id="sourceOfBusinessContainer"><canvas id="sourceOfBusinessCanvas" width="200" height="200"></canvas></div>
+<div id="cancelationReasonContainer"><canvas id="cancelationReasonCanvas" width="200" height="200"></canvas></div>
+
+
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
+<script>
+    let groupArray = {{{groups}}};
+
+    
+
+    function renderClientStatusChart() {
+        let clientStatusArray = groupArray.map((group) => {
+            return group.clientStatus;
+        });
+        let confirmTotal = 0;
+        let pendingTotal = 0;
+        let cancelTotal = 0;
+        for(var i = 0; i < clientStatusArray.length; i++) {
+            if(clientStatusArray[i] === 'Confirmed') {
+                confirmTotal++;
+            }
+            else if(clientStatusArray[i] === 'Pending') {
+                pendingTotal++;
+            }
+            else {
+                cancelTotal++;
+            }
+        }
+        let finishedClientArray = [];
+        finishedClientArray.push(confirmTotal);
+        finishedClientArray.push(pendingTotal);
+        finishedClientArray.push(cancelTotal); 
+
+        var clientCanvas = document.getElementById("clientStatusChart").getContext('2d');
+        var clientStatusChart = new Chart(clientCanvas, {
+        type: 'bar',
+        data: {
+            labels: ["Confirmed", "Pending", "Canceled"],
+            datasets: [{
+                label: 'Client Status Summary All Time',
+                data: finishedClientArray,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255,99,132,1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero:true
+                    }
+                }]
+            },
+            responsive: true,
+            maintainAspectRatio: false
+
+        }
+    });
+}
+
+
+function renderDateChart() {
+        let months = [0,0,0,0,0,0,0,0,0,0,0,0]
+        for(var i = 0; i < groupArray.length; i++) {
+            let date = new Date(groupArray[i].time);
+            let month = date.getMonth();
+            months[month]++;
+        }
+        var dateCanvas = document.getElementById("timeCanvas").getContext('2d');
+        var timeChart = new Chart(dateCanvas, {
+        type: 'bar',
+        data: {
+            labels: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+            datasets: [{
+                label: 'Proposal Submission Frequency by Month',
+                data: months,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255,99,132,1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero:true
+                    }
+                }]
+            },
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+};
+
+function renderSourceOfBusinessChart() {
+    let sources = [];
+    let sourceOfBusinessCanvas = document.getElementById('sourceOfBusinessCanvas');
+    let sourceChart = new Chart(sourceOfBusinessCanvas,{
+        type: 'pie',
+        data : {
+        datasets: [{
+            data: [10, 20, 30],
+            backgroundColor:['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 206, 86, 0.2)'],
+            borderColor:['rgba(255,99,132,1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)' ]
+        }],
+        // These labels appear in the legend and in the tooltips when hovering different arcs
+        labels: [
+            'Phone',
+            'Repeat Guest',
+            'Contact Form Submission'
+            ]
+        }
+    });
+}
+
+function renderCancelationReasonChart() {
+    let cancelationReasons = [];
+    let finishedCancelationReasonsArray = [];
+    let ratesHigh = 0;
+    let roomsUnavailable = 0;
+    let conferenceUnavailable = 0;
+    let conferenceLimited = 0;
+    let tooSmall = 0;
+    
+    for(var i = 0; i < groupArray.length; i++) {
+        if(groupArray[i].cancelationReason != undefined) {
+            cancelationReasons.push(groupArray[i].cancelationReason);
+            console.log(groupArray[i].cancelationReason)
+        }
+    }
+    
+    for(var i = 0; i < cancelationReasons.length; i++) {
+        if(cancelationReasons[i] === 'Rates to high') ratesHigh++;
+        else if(cancelationReasons[i] === 'Rooms unavailable') roomsUnavailable++;
+        else if(cancelationReasons[i] === 'Conference space unavailable') conferenceUnavailable++;
+        else if(cancelationReasons[i] === 'Conference Space too limited/small') conferenceLimited++;
+        else if(cancelationReasons[i] === 'Not enough large units') tooSmall++;
+    }
+    finishedCancelationReasonsArray.push(ratesHigh);
+    finishedCancelationReasonsArray.push(roomsUnavailable);
+    finishedCancelationReasonsArray.push(conferenceUnavailable);
+    finishedCancelationReasonsArray.push(conferenceLimited);
+    finishedCancelationReasonsArray.push(tooSmall);
+    console.log(finishedCancelationReasonsArray)
+
+    let cancelationReasonCanvas = document.getElementById('cancelationReasonCanvas');
+    let cancelChart = new Chart(cancelationReasonCanvas,{
+        type: 'pie',
+        data : {
+        datasets: [{
+            data: finishedCancelationReasonsArray,
+            backgroundColor:['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 206, 86, 0.2)'],
+            borderColor:['rgba(255,99,132,1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)' ]
+        }],
+        // These labels appear in the legend and in the tooltips when hovering different arcs
+        labels: [
+            'Rates to high',
+            'Rooms unavailable',
+            'Conference space unavailable',
+            'Conference Space too limited/small',
+            'Not enough large units'
+            ]
+        }
+    });
+}
+
+   
+        
+    renderClientStatusChart();
+    renderDateChart();
+    renderSourceOfBusinessChart();
+    renderCancelationReasonChart();
+
+
+</script>
+
