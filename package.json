@@ -23,7 +23,7 @@
     "moment": "^2.21.0",
     "mongoose": "^5.0.6",
     "nodemailer": "^4.6.2",
-    "nodemon": "^1.17.4",
+    "nodemon": "^1.17.5",
     "npm": "^5.8.0",
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",

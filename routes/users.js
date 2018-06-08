@@ -8,6 +8,7 @@ const router = express.Router();
 const User = mongoose.model('User');
 
 const {ensureAuthenticated} = require('../helpers/auth');
+const {validateUserInput} = require('../helpers/validateUserInput');
 
 
 // User Login Route
@@ -24,16 +25,32 @@ router.get('/register', (req, res) => {
 router.put('/profile/update/:id', ensureAuthenticated, (req, res) => {
   User.findOne({_id: req.params.id})
     .then(user => {
-      if(req.body.name) user.name = req.body.name;
-      if(req.body.email) user.email = req.body.email;
-      user.save()
-        .then(user => {
-          req.flash('success_msg', 'Profile updated.');
-          res.redirect(`/users/profile/${user._id}`)
-        })
+      let errors = validateUserInput(req.body);
+      if(errors.length > 0) {
+        req.flash('error_msg', 'Please make sure your password meets the minimum requirements.');
+        res.redirect(`/users/profile/${user._id}`)
+      }
+      else {
+        user.name = req.body.name;
+        user.email = req.body.email;
+        bcrypt.genSalt(10, (err, salt) => {
+          bcrypt.hash(req.body.password, salt, (err, hash) => {
+            if(err) throw err;
+            user.password = hash;
+            user.save()
+              .then(user => {
+                req.flash('success_msg', 'Profile updated.');
+                res.redirect(`/users/profile/${user._id}`);
+              })
+              .catch(err => {
+                console.log(err);
+                return;
+              });
+          });
+        });
+      }
     })
     .catch(err => console.log(err));
-
 });
 
 router.get('/profile/:id', ensureAuthenticated, (req, res) => {
@@ -43,7 +60,8 @@ router.get('/profile/:id', ensureAuthenticated, (req, res) => {
       {
         profile: JSON.stringify(user),
         name: user.name,
-        email: user.email      
+        email: user.email,
+        role: user.role     
       });
     })
     .catch(err => console.log(err)); 
@@ -65,16 +83,7 @@ router.post('/login', passport.authenticate('local', {
 
 // Register Form POST
 router.post('/register', (req, res) => {
-  let errors = [];
-
-  if(req.body.password != req.body.password2){
-    errors.push({text:'Passwords do not match'});
-  }
-
-  if(req.body.password.length < 4){
-    errors.push({text:'Password must be at least 4 characters'});
-  }
-
+  let errors = validateUserInput(req.body);
   if(errors.length > 0){
     res.render('users/register', {
       errors: errors,

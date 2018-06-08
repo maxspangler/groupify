@@ -1,12 +1,18 @@
-<h4 id="userGreeting"></h4>
-<p>You have {{pendingCount}} proposals pending your review.</p>
-<p>Click <a href="proposals">here</a> to navigate to your outstanding proposals.</p>
-
+<style>
+  body {background-color: #F5F6F5;}
+</style>
+<h4 class="fontColorStyle">Dashboard</h4>
+<hr>
+<div class="container mt-3">
+  <h5 id="userGreeting"></h5>
+  <p>You have {{pendingCount}} proposals pending your review.</p>
+  <p>Click <a href="proposals">here</a> to navigate to your outstanding proposals.</p>
+</div>
 <div class="container">
   <div class="card proposalCard" style="width: 10rem;">
     <div class="card-body">
       <h5 class="card-title">Proposals</h5>
-      <h6 class="card-subtitle mb-2 text-muted">Today</h6>
+      <h6 class="card-subtitle mb-2 text-muted">Today <i class="fas fa-clock"></i></h6>
       <p class="card-text">{{proposalsTodayLength}}</p>
     </div>
   </div>
@@ -14,7 +20,7 @@
   <div class="card proposalCard" style="width: 10rem;">
     <div class="card-body">
       <h5 class="card-title">Proposals</h5>
-      <h6 class="card-subtitle mb-2 text-muted">Week</h6>
+      <h6 class="card-subtitle mb-2 text-muted">Week <i class="fas fa-clock"></i></h6>
       <p class="card-text">{{proposalsWeekLength}}</p>
     </div>
   </div>
@@ -22,7 +28,7 @@
   <div class="card proposalCard" style="width: 10rem;">
     <div class="card-body">
       <h5 class="card-title">Proposals</h5>
-      <h6 class="card-subtitle mb-2 text-muted">Month</h6>
+      <h6 class="card-subtitle mb-2 text-muted">Month <i class="fas fa-clock"></i></h6>
       <p class="card-text">{{proposalsMonthLength}}</p>
     </div>
   </div>

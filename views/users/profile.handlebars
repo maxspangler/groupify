@@ -1,27 +1,60 @@
-<h3>Profile</h3>
-<div class="row">
-  <div class="col-md-6 mx-auto">
-    <div class="card card-body">
-      <form action="/users/profile/update/{{user.id}}?_method=PUT" method="POST" onsubmit="submitBtn.disabled = true; return true;">
-        <div class="form-group">
-          <label for="name">Name</label>
-          <input type="text" class="form-control" required name="name" value="{{name}}">
+<style>
+  body {background-color: #F5F6F5;}
+</style>
+<h4 class="fontColorStyle">User Profile</h4>
+<hr>
+<div class="container">
+  <div class="row">
+    <div class="col-md-6 mx-auto mb-4">
+      <div class="card" style="width: 18rem;">
+        <img class="card-img-top" src="http://localhost:3000/images/card-topper.jpg" alt="Card image cap">
+        <div class="card-body" style="text-align: center">
+          <p>{{name}}</p>
+          <hr>
+          <p class="card-text">{{role}}</p>
         </div>
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input type="email" class="form-control" required name="email" value="{{email}}">
+      </div>
+    </div>
+    <div class="col-md-6 mx-auto mb-4">
+      <div>
+        <div>
+          <div class="card card-body">
+            <form action="/users/profile/update/{{user.id}}?_method=PUT" method="POST" onsubmit="submitBtn.disabled = true; return true;">
+              <div class="form-group">
+                <h4 class="mb-4">Edit Profile</h4>
+                <label for="name">Name</label>
+                <input type="text" class="form-control" required name="name" value="{{name}}">
+              </div>
+              <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" class="form-control" required name="email" value="{{email}}">
+              </div>
+              <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" class="form-control" required name="password">
+              </div>
+              <div class="form-group">
+                <label for="password">Confirm Password</label>
+                <input type="password" class="form-control" required name="password2">
+              </div>
+              <button id="profileSubmitBtn" type="submit" class="btn btn-primary">Update Profile</button>
+            </form>
+          </div>
         </div>
-        <h5>Change Password</h5>
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input type="password" class="form-control" required name="password">
-        </div>
-        <div class="form-group">
-          <label for="password">Confirm Password</label>
-          <input type="password" class="form-control" required name="password2">
-        </div>
-        <button id="submitBtn" type="submit" class="btn btn-primary">Update</button>
-      </form>
+      </div>
     </div>
   </div>
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+

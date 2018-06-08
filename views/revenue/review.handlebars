@@ -1,29 +1,73 @@
-<div class="card text-center">
-  <div id="insertStatus" class="card-header">
-    {{group.name}}
+<style>
+  body {background-color: #F5F6F5;}
+</style>
+<h4 class="fontColorStyle">Proposal Review</h4>
+<hr>
+
+<div class="container">
+  <div id="heroBanner" class="jumbotron mb-4 mt-4">
+    <div class="container">
+      <h1 class="display-4">{{group.name}}</h1>
+      <p class="text-muted">
+        A {{group.marketType}} market segment group arriving on <span class="reviewTimeStyle">{{arrivalDate}}</span> and departing on <span class="reviewTimeStyle">{{departureDate}}</span>.
+      </p>
+      <p class="text-muted">Submitted by {{group.user.name}} on {{submissionTime}}.</p>
+    </div>
   </div>
-  <div class="card-body">
-    <h5 class="card-title">Details</h5>
-    <p class="card-text">Arrival Date: {{group.dateFrom}}</p>
-    <p class="card-text">Departure Date: {{group.dateTo}}</p>
-    <div id="insertFormDynamically"></div>
-    <p>Conference Space: {{group.conferenceSpace}}</p>
-    <p>Conference Revenue: {{group.conferenceRevenue}}</p>
-    <p>Total Group Revenue: ${{totalRevenue}}</p>
-    <p class="card-text">Other Notes: {{group.otherNotes}}</p>
-    <button id="confirmPurposal" class="btn btn-success"><i class="far fa-thumbs-up"></i> Approve</button>
-    <button id="denyPurposal" class="btn btn-danger"><i class="far fa-thumbs-down"></i> Deny</button>
-  </div>
-  <div class="card-footer text-muted">
-    Submitted on {{group.time}}
+
+
+  <div class="container">
+    <div class="row">
+      <div class="card text-center" style="width:100%">
+        <div class="card-header">Rooms & Rates</div>
+        <div class="card-body">
+          <div id="insertFormDynamically"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row card-group mt-4 mb-4">
+      <div class="card text-center">
+        <div class="card-header">Conference Space</div>
+        <div class="card-body">
+          <p>Requested? {{group.conferenceSpace}}</p>
+          <p>Revenue: ${{group.conferenceRevenue}}</p>
+        </div>
+      </div>
+
+      <div class="card text-center">
+        <div class="card-header">Additional Notes</div>
+        <div class="card-body">
+          <p class="card-text">{{group.otherNotes}}</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body"> 
+          <p style="float:left; font-size:3em; color:green; word-wrap:break-word"><i class="far fa-money-bill-alt"></i></p>
+          <p class="card-text" style="float:right; margin-top:15px; font-size:2em; word-wrap:break-word">${{totalRevenue}}</p>
+          <div style="clear:both;"></div>
+          <hr>
+          <p class="text-muted" style="text-align:center">Anticipated Group Revenue</p>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
+<div id="reviewBtnContainer" class="container mt-4 mb-4">
+  <button id="confirmPurposal" class="btn btn-success mr-4"><i class="far fa-thumbs-up"></i> Approve</button>
+  <button id="denyPurposal" class="btn btn-danger"><i class="far fa-thumbs-down"></i> Deny</button>
+</div>
 
-<div class="card">
+
+
+
+
+<div class="container mb-4">
+  <div class="card">
       <div class="card-body">
         <span class="card-title">Comments</span>
-        {{#if user}}
         <form action="/revenue/review/comment/{{group.id}}" method="post">
           <div>
             <textarea class="form-control" name="commentBody"></textarea>
@@ -31,24 +75,24 @@
           </div>
           <input class="btn btn-primary" type="submit" value="Submit">
         </form>
-        {{else}}
-        <p>Please <a href="/users/login">log in</a> to leave a comment.</p>
-        {{/if}}
       </div>
-    </div>
-    {{#each group.comments}}
-    <div class="card">
-      <div class="card-body">
-        <h5>{{commentBody}}</h5>
-        <div>
-          <span id="userNameSpan">{{commentUser.name}}</span> 
-          <span id="userBadge">{{commentUser.role}}</span> 
-        </div>
-        <br>
-        <small>Posted: {{commentDate}}</small>
+  </div>
+  {{#each group.comments}}
+  <div class="card">
+    <div class="card-body">
+      <h5>{{commentBody}}</h5>
+      <div class="commentSignature">
+        <span id="userNameSpanStyle" class="ml-1">{{commentUser.name}}</span> 
+        <span class="userBadge mb-1">{{commentUser.role}}</span> 
       </div>
+      <br>
+      <small>Posted: {{commentDate}}</small>
     </div>
-    {{/each}}
+  </div>
+  {{/each}}
+</div>
+
+
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <script>
   let confirmPurposalButton = document.getElementById('confirmPurposal');
@@ -138,15 +182,15 @@
                       <span id="roomTypeSelect-${i}" name="roomTypeSelect-${i}"></span>
                       </div>
                       <div class="form-group col-md-4">
-                      <label for="purposedRate-${i}">Purposed Rate $</label>
+                      <label for="purposedRate-${i}">Purposed Rate: $</label>
                       <span id="purposedRate-${i}" name="purposedRate-${i}"></span>  
                       </div>
                       <div class="form-group col-md-4">
                       <label for="roomsPerNight-${i}">Rooms per Night:</label>
                       <span id="roomsPerNight-${i}" name="roomsPerNight-${i}"></span>
                       </div>
-                      
                   </div>
+                  <hr class="hrShadowStyle">
           `;
           insertAfter(container,holdingContainer);
       }
@@ -167,7 +211,7 @@
       roomsPerNightInput.innerText = roomsArray[i];
   }
 
-let userArray = document.querySelectorAll('#userBadge');
+let userArray = document.querySelectorAll('.userBadge');
 let userArrayFormatted = Array.from(userArray);
 
 formatUserBadge(userArrayFormatted)
@@ -175,12 +219,12 @@ formatUserBadge(userArrayFormatted)
 function formatUserBadge(array) {
   for(let i = 0; i < array.length; i++) {
     if(array[i].innerText === 'Revenue Manager') {
-      array[i].classList.add('badge', 'badge-pill', 'badge-dark')
+      array[i].classList.add('badge', 'badge-pill', 'revenueBadge')
       
       array[i].innerHTML = `<i class="fas fa-dollar-sign"></i> Revenue Manager`;
     }
     else if(array[i].innerText === 'Sales Agent') {
-      array[i].classList.add('badge', 'badge-pill', 'badge-info')
+      array[i].classList.add('badge', 'badge-pill', 'salesBadge')
       array[i].innerHTML = `<i class="fas fa-bolt"></i> Sales Agent`;
     }
   }

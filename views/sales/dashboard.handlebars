@@ -1,6 +1,13 @@
-<h4 id="userGreeting"></h4>
-<p>You have {{clientStatusCount}} pending proposals submitted to clients.</p>
-<p>Your Revenue Manager is currently reviewing {{managementStatusCount}} proposals.</p>
+<style>
+  body {background-color: #F5F6F5;}
+</style>
+<h4 class="fontColorStyle">Dashboard</h4>
+<hr>
+<div class="container mt-3">
+    <h5 id="userGreeting" class="mb-3"></h5>
+    <p>You have {{clientStatusCount}} pending proposals submitted to clients.</p>
+    <p>Your Revenue Manager is currently reviewing {{managementStatusCount}} proposals.</p>
+</div>
 
 <script src="/javascripts/greeting.js"></script>
 <script>

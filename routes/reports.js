@@ -6,6 +6,7 @@ var moment = require('moment');
 
 const {ensureAuthenticated} = require('../helpers/auth');
 const {parseDate} = require('../helpers/parse');
+const {sendEmail} = require('../helpers/emailHandler');
 
 router.get('/', ensureAuthenticated, (req, res) => {
     res.render('reports/reports')
@@ -105,16 +106,14 @@ router.post('/submit', (req, res) => {
             <table>
             `;
             
-            // consider writing a submit email function and importing it
-            const sgMail = require('@sendgrid/mail');
-            sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-            const msg = {
-            to: 'mspangler@litchfieldinn.com',
-            from: 'reporting@salesapp.com',
-            subject: 'Weekly Sales Report',
-            html: title + output,
-            };
-            sgMail.send(msg); 
+            // the receiver field will eventually need to be some sort of property based variable
+            sendEmail(
+                'mspangler@litchfieldinn.com', 
+                'reporting@groupify.app',
+                'Weekly Sales Report',
+                 title + output
+                );
+       
             res.json({msg: 'Report Submitted Successfully'});
           })
           .catch(err => console.log(err));

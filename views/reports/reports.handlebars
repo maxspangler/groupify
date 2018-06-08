@@ -1,16 +1,22 @@
-<h2>Reports</h2>
+<style>
+  body {background-color: #F5F6F5;}
+</style>
+<h4 class="fontColorStyle">Reports</h4>
+<hr>
+
 <div id="msgContainer"></div>
 
-<div class="form-control col-md-4">
-    <label for="reportStartDate">Report Date</label>
+<div id="reportContainer" style="text-align:center" class="form-control col-md-4">
+
+    <label for="reportStartDate"><i class="far fa-calendar-alt"></i> Weekly Report Date</label>
     <input type="date" name="reportStartDate" class="form-control" id="reportStartDate">
-</div>
 
-<div id="btnGroup">
-    <button id="generateWeeklyReport" type="button" class="btn btn-primary btn-sm">Preview Weekly Report</button>
-    <button id="submitWeeklyReport" type="button" class="btn btn-success btn-sm">Submit Weekly Report</button>
-</div>
 
+    <div id="btnGroup">
+        <button id="generateWeeklyReport" type="button" class="btn btn-primary btn-sm">Preview</button>
+        <button id="submitWeeklyReport" type="button" class="btn btn-success btn-sm">Submit</button>
+    </div>
+</div>
 
 <div id="insertTable"></div>
 
@@ -97,7 +103,7 @@ function generateReport() {
                     }
 
                     tableContainer.innerHTML = `
-                    <table class="table table-bordered table-striped">
+                    <table class="table table-bordered table-striped mb-5">
                         <thead>
                             <tr>
                                 <th>Group Name</th>

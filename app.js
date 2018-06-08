@@ -29,9 +29,14 @@ const keys = require('./config/keys');
 
 
 mongoose.Promise = global.Promise;
-mongoose.connect(keys.mongoURI, {
-  }) 
-  .then(() => console.log('Connected to MongoDB...'))
+// mongoose.connect(keys.mongoURI, {
+//   }) 
+//   .then(() => console.log('Connected to MongoDB...'))
+//   .catch(err => console.log(err));
+
+mongoose.connect('mongodb://localhost/sales-app', {
+  })
+  .then(() => console.log('Connected to Dev Mongo Server...'))
   .catch(err => console.log(err));
 
   

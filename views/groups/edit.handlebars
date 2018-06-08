@@ -1,4 +1,8 @@
-<h1>Edit</h1>
+<style>
+  body {background-color: #F5F6F5;}
+</style>
+<h4 class="fontColorStyle mt-2">Edit Proposal</h4>
+<hr>
 <form action="/groups/edit/{{group.id}}?_method=PUT" method="POST" onsubmit="updateBtn.disabled = true; return true;">
     <div class="form-group">
         <label for="groupName">Group Name</label>
@@ -6,18 +10,22 @@
     </div>
     <div class="row">
         <div class="form-group col-md-4">
-            <label for="groupDateFrom">Start Date</label>
+            <label for="groupDateFrom">Arrival Date</label>
             <input type="date" name="groupDateFrom" class="form-control" id="groupDateFrom" value="{{group.dateFrom}}">
         </div>
         <div class="form-group col-md-4">  
-            <label for="groupDateTo">End Date</label>
+            <label for="groupDateTo">Departure Date</label>
             <input type="date" name="groupDateTo" class="form-control" id="groupDateTo" value="{{group.dateTo}}">
         </div>
     </div>
-    <div><button id="addBtn" type="button" class="btn btn-success" onclick="addInput()">Add Another Room Type <i class="fas fa-plus"></i></button></div>
+
 
     <div id="insertFormDynamically"></div>
-    <div class="form-group">
+
+    <div><button id="addBtn" type="button" class="btn btn-secondary mt-2" onclick="addInput()"><i class="fas fa-plus"></i>  Room Type</button></div>
+
+
+    <div class="form-group mt-4 mb-4">
         <label for="sourceOfBusiness">Source of Business</label>
         <select id="sourceOfBusiness" class="form-control col-md-4" name="sourceOfBusiness">
             <option selected disabled>Choose...</option>
@@ -26,6 +34,7 @@
             <option>Repeat Guest</option>
       </select>
     </div>
+
     <div class="form-group">
         <label>Conference Space:  </label>
         <div class="form-check form-check-inline">
@@ -45,12 +54,12 @@
         </div>
     </div>
 
-    <div class="input-group">
-        <label for="otherNotes">Notes</label>
-        <textarea class="form-control" name="otherNotes" id="otherNotes" rows="3">{{group.otherNotes}}</textarea>
+    <div class="form-group">
+        <label class="notesStyle" for="otherNotes"><i class="fas fa-pencil-alt"></i> Notes:</label>
+        <textarea class="form-control notesStyle" name="otherNotes" id="otherNotes" rows="3">{{group.otherNotes}}</textarea>
     </div> 
 
-  <button id="updateBtn" type="submit" class="btn btn-success">Update</button>
+  <button id="updateBtn" type="submit" class="btn btn-primary mt-2 mb-5">Update</button>
 </form>
 
 <script>
@@ -69,7 +78,7 @@
             container.innerHTML = `
                 <div class="form-row" id="row-${i}">
                         <div class="form-group col-md-4">
-                        <label for="roomTypeSelect-${i}">Room Type <button id="removeBtn-${i}" type="button" class="btn btn-danger" onclick="removeInput(${i})"><i class="fas fa-trash-alt"></i></button></label>
+                        <label for="roomTypeSelect-${i}">Room Type</label>
                             <select id="roomTypeSelect-${i}" class="form-control" name="roomTypeSelect-${i}">
                                 <option selected disabled>Choose...</option>
                                 <option value="LDG">LDG</option>
@@ -87,6 +96,7 @@
                         <label for="roomsPerNight-${i}">Rooms per Night</label>
                         <input id="roomsPerNight-${i}" type="number" class="form-control" name="roomsPerNight-${i}" placeholder="#">
                         </div>
+                        <button id="removeBtn-${i}" type="button" class="btn btn-secondary btn-sm ml-2 deleteBtnStyle" onclick="removeInput(${i})"><i class="fas fa-trash-alt deleteTrashIconStyle"></i></button>
                     </div>
             `;
             insertAfter(container,holdingContainer);
@@ -110,12 +120,9 @@
             
     function removeInput(id) {
         let rowToRemove = document.getElementById("row-" + id);
-        rowToRemove.remove();
+        removeFadeOut(rowToRemove, 1000);
         checkLen--;
-       if(checkLen === 0) {
-           updateBtn.disabled = true;
-           addBtn.innerHTML = 'Add a Room Type <i class="fas fa-plus"></i>'
-       }
+       if(checkLen === 0) updateBtn.disabled = true;
     }
 
     function addInput() {
@@ -127,7 +134,7 @@
         container.innerHTML = `
             <div class="form-row" id="row-${i}">
                 <div class="form-group col-md-4">
-                <label for="roomTypeSelect-${i}">Room Type <button id="removeBtn-${i}" type="button" class="btn btn-danger" onclick="removeInput(${i})"><i class="fas fa-trash-alt"></i></button></label>
+                <label for="roomTypeSelect-${i}">Room Type</label>
                     <select id="roomTypeSelect-${i}" class="form-control" name="roomTypeSelect-${i}">
                         <option selected disabled>Choose...</option>
                         <option value="LDG">LDG</option>
@@ -145,15 +152,12 @@
                 <label for="roomsPerNight-${i}">Rooms per Night</label>
                 <input id="roomsPerNight-${i}" type="number" class="form-control" name="roomsPerNight-${i}" placeholder="#" min="0">
                 </div>
+                <button id="removeBtn-${i}" type="button" class="btn btn-secondary btn-sm ml-2 deleteBtnStyle" onclick="removeInput(${i})"><i class="fas fa-trash-alt deleteTrashIconStyle"></i></button>
             </div>
             `;
         insertAfter(container,holdingContainer);
-        if(checkLen > 0)  {
-            updateBtn.disabled = false;
-            addBtn.innerHTML = 'Add Another Room Type <i class="fas fa-plus"></i>'
-        }
+        if(checkLen > 0) updateBtn.disabled = false;
     }
-
     function insertAfter(newNode, referenceNode) {
         referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
     }
@@ -189,7 +193,16 @@
             conferenceRevenueInput.value = 0;
             conferenceRevenue.classList.add('hidden');
         }
-    }; 
+    };
+
+        function removeFadeOut(el, speed) {
+        var seconds = speed/1000;
+        el.style.transition = "opacity "+seconds+"s ease";
+        el.style.opacity = 0;
+        setTimeout(function() {
+            el.remove();
+        }, speed);
+    } 
 
 
 </script>

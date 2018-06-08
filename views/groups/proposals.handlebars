@@ -1,7 +1,11 @@
+<style>
+  body {background-color: #F5F6F5;}
+</style>
+<h4 class="fontColorStyle">Proposals</h4>
+<hr>
 
 
-<div class="container">
-  <h2>Proposals</h2>
+<div class="container mt-4 mb-5">
   <input class="form-control" id="myInput" type="text" placeholder="Search..">
   <br>
   <table class="table table-bordered table-striped">
@@ -38,17 +42,17 @@ let statusArray = Array.from(statusText);
 statusArray.forEach((status) => {
     if(status.innerText == 'Confirmed') {
         let symbol = document.createElement('i');
-        symbol.classList.add('far', 'fa-check-circle','confirmSymbol');
+        symbol.classList.add('far', 'fa-check-circle','confirmSymbol', 'pl-2');
         status.appendChild(symbol);
     }
     else if(status.innerText == 'Pending') {
         let symbol = document.createElement('i');
-        symbol.classList.add('far', 'fa-clock', 'pendingSymbol');
+        symbol.classList.add('far', 'fa-clock', 'pendingSymbol', 'pl-4');
         status.appendChild(symbol);
     }
     else {
         let symbol = document.createElement('i');
-        symbol.classList.add('fas', 'fa-ban', 'cancelSymbol');
+        symbol.classList.add('fas', 'fa-ban', 'cancelSymbol', 'pl-3');
         status.appendChild(symbol);
     }
 });

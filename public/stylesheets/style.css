@@ -1,3 +1,36 @@
+body, wrapper {
+    min-height:100vh; 
+    font-family: 'Muli', sans-serif;  
+}
+
+.navbar .navbar-brand{
+    color: #A59F8C;
+}
+.navbar .navbar-brand:hover{
+    color:#EA6E3F;
+}
+
+.navbar .navbar-nav .nav-item .nav-link {
+    color:#A59F8C;
+}
+.navbar .navbar-nav .nav-item .nav-link:hover {
+    color:#EA6E3F;
+}
+
+.navbar {
+    background-color: #3C3344 !important;
+}
+
+.footer {
+    background-color: #3C3344 !important;
+    color: #A59F8C !important;
+}
+ 
+.flex-fill {
+    flex:1 1 auto;
+}
+  
+
 .hidden {
     display: none;
 }
@@ -74,20 +107,22 @@
     white-space: nowrap;
 }
 
-#userNameSpan {
-    font-family: 'Roboto', sans-serif;
-    color: slategray;
-    font-size: 0.9em;
+#userNameSpanStyle {
+    color: #3C3344;
+    font-size: 0.8em;
 }
 
 #deleteTrashIcon{
-    color:red;
+    color:#FFFFFF;
 }
 
 #deleteBtn {
     display: block;
     height: 30px;
     width: 30px;
+    margin-top: 36px;
+    background-color: #EA6E3F;
+    border-color: #EA6E3F;
 }
 
 .colorFlash{
@@ -114,6 +149,235 @@
 .card.proposalCard {
     display: inline-block;
     margin: 0.3em;
+}
+
+#otherNotesLabel {
+    display: block;
+}
+
+#otherNotes {
+    display: block;
+}
+
+footer {
+    text-align: center;
+    font-size: 0.7em;
+}
+
+.fontColorStyle {
+    color: #A59F8C;
+}
+
+#profileSubmitBtn{
+    background-color: #F8C35A;
+    border-color: #F8C35A;
+}
+
+.submitBtnStyle {
+    background-color: #EA6E3F;
+    border-color: #EA6E3F; 
+}
+
+#loginSubmitBtn{
+    background-color: #F8C35A;
+    border-color: #F8C35A;
+}
+#loginSubmitBtn:hover{
+    background-color: #EA6E3F;
+    border-color: #EA6E3F; 
+}
+
+#registerSubmitBtn{
+    background-color: #F8C35A;
+    border-color: #F8C35A;
+}
+#registerSubmitBtn:hover{
+    background-color: #EA6E3F;
+    border-color: #EA6E3F; 
+}
+
+/* Create Styles */
+
+#groupSubmitBtn{
+    background-color: #F8C35A;
+    border-color: #F8C35A; 
+}
+
+#groupSubmitBtn:hover{
+    background-color: #EA6E3F;
+    border-color: #EA6E3F; 
+}
+
+#addmoreBtn{
+    background-color: #A59F8C;
+    border-color: #A59F8C;
+}
+
+#addmoreBtn:hover{
+    background-color: #3C3344;
+    border-color: #3C3344;
+}
+
+.navbar-nav > li > .dropdown-menu { 
+    background-color: #FFFFFF;
+}
+
+.navbar-nav > li > .dropdown-menu > a { 
+    color: black; 
+}
+
+.navbar-nav > li > .dropdown-menu > a:hover { 
+    background-color: #EA6E3F; 
+    color: #FFFFFF
+}
+
+
+#generateWeeklyReport{
+    background-color: #A59F8C;
+    border-color: #A59F8C;
+}
+
+#generateWeeklyReport:hover{
+    background-color: #EA6E3F;
+    border-color: #EA6E3F;
+}
+
+#submitWeeklyReport{
+    background-color: #A59F8C;
+    border-color: #A59F8C;
+}
+
+#submitWeeklyReport:hover{
+    background-color: #EA6E3F;
+    border-color: #EA6E3F;
+}
+
+#reportContainer{
+    margin-top: 30px;
+}
+
+#heroBanner{
+    background-color: #3C3344;
+    color:#EA6E3F
+}
+
+#confirmPurposal{
+    background-color: #F8C35A;
+    border-color: #F8C35A;
+}
+
+#confirmPurposal:hover{
+    background-color: #EA6E3F;
+    border-color: #EA6E3F;
+}
+
+#denyPurposal{
+    background-color: #F8C35A;
+    border-color: #F8C35A;
+    width: 110px;
+}
+
+#denyPurposal:hover{
+    background-color: #EA6E3F;
+    border-color: #EA6E3F;
+}
+
+/* .row .card .card-header {
+} */
+
+#reviewBtnContainer{
+    margin: 0 auto;
+    width: 19em;
+}
+
+.reviewTimeStyle{
+    color: #F8C35A;
+}
+
+#commentContainer{
+    margin-top: 2em;
+    margin-bottom: 2em;
+}
+
+/* Edit Styles */
+#updateBtn{
+    background-color: #F8C35A;
+    border-color: #F8C35A; 
+}
+
+#updateBtn:hover{
+    background-color: #EA6E3F;
+    border-color: #EA6E3F; 
+}
+
+.notesStyle {
+    display: block;
+}
+
+#addBtn{
+    background-color: #A59F8C;
+    border-color: #A59F8C;
+}
+
+#addBtn:hover{
+    background-color: #3C3344;
+    border-color: #3C3344;
+}
+
+.deleteTrashIconStyle{
+    color:#FFFFFF;
+}
+
+.deleteBtnStyle {
+    display: block;
+    height: 30px;
+    width: 30px;
+    margin-top: 36px;
+    background-color: #EA6E3F;
+    border-color: #EA6E3F;
+}
+
+.revenueBadge{
+    color: #FFFFFF;
+    background-color: #EA6E3F;
+}
+
+.salesBadge{
+    color: #FFFFFF;
+    background-color: #3C3344;
+}
+
+.commentSignature{
+    background-image: linear-gradient(to right, rgb(241, 241, 241) 0%, #FFFFFF 100%);
+    border-radius: 19px;
+    padding-left: 10px;
+}
+
+.card-deck {
+    display: inline-flex;
+    flex-wrap: nowrap;
+    width:100%;
+}
+
+#cancelDiv{
+   width: 100%;
+}
+
+#submitChangeStatusBtn {
+    background-color: #F8C35A;
+    border-color: #F8C35A;  
+}
+
+#submitChangeStatusBtn:hover{
+    background-color: #EA6E3F;
+    border-color: #EA6E3F; 
+}
+
+.hrShadowStyle {
+    height: 12px;
+    border: 0;
+    box-shadow: inset 0 12px 12px -12px rgba(0, 0, 0, 0.5);
+    margin-top: -9px; 
 }
 
 

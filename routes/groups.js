@@ -7,6 +7,7 @@ var moment = require('moment');
 const {ensureAuthenticated} = require('../helpers/auth');
 const {arraysEqual} = require('../helpers/array');
 const {calculateTotalGroupRevenue} = require('../helpers/calculateTotalRevenue');
+const {checkForInputErrors} = require('../helpers/checkInputFields');
 
 router.get('/create', ensureAuthenticated, (req, res) => {
     res.render('groups/create');
@@ -23,39 +24,12 @@ router.get('/proposals', ensureAuthenticated, (req, res) => {
 
 // Create a new group proposal 
 router.post('/create/new', (req, res) => {
-    let roomTypeArr = [];
-    let roomNightsArr = [];
-    let roomRatesArr = [];
-    let errors = [];
+    let roomTypeArr     = [],
+        roomNightsArr   = [],
+        roomRatesArr    = [];
 
-    for (var key in req.body){
-        // need to figure out a better way to validate the form
-        console.log("Key: " + key + " Value: " + req.body[key]);
-
-        // if(key.includes('roomTypeSelect') && req.body[key] === '') {
-        //     errors.push({text: 'room type'})
-        // }
-        if(key.includes('purposedRate') && req.body[key] === '') {
-            errors.push({text: 'Please completely fill out the proposal'})
-        }
-        // if(key.includes('roomsPerNight') && req.body[key] === '') {
-        //     errors.push({text: 'per night'})
-        // }
-        
-    }
-
-
-    if(!req.body.groupName) errors.push({text: 'Please add a group name'});
-    if(!req.body.groupDateFrom) errors.push({text: 'Please add an arrival date'});
-    if(!req.body.groupDateTo) errors.push({text: 'Please add a departure date'});
-//    if(!req.body.roomTypeSelect) errors.push({text: 'Please add a room type'});
-//    if(!req.body.purposedRate) errors.push({text: 'Please add propose a rate'});
-//    if(!req.body.roomsPerNight) errors.push({text: 'Please add rooms'});
-    if(!req.body.sourceOfBusiness) errors.push({text: 'Please add a source of business'});
-    if(!req.body.conferenceOption) errors.push({text: 'Please add a conference option'});
-
-
-   if(errors.length > 0) {
+    let errors = checkForInputErrors(req.body);
+    if(errors.length > 0) {
        res.render('groups/create', {errors: errors})
    }
    else {
@@ -84,7 +58,9 @@ router.post('/create/new', (req, res) => {
             sourceOfBusiness: req.body.sourceOfBusiness,
             conferenceRevenue: req.body.conferenceRevenue,
             conferenceSpace: req.body.conferenceOption,
-            otherNotes: req.body.otherNotes
+            otherNotes: req.body.otherNotes,
+            marketType: req.body.marketType,
+            user: req.user
         }
 
         new Group(newGroup)
@@ -135,7 +111,7 @@ router.post('/create/new', (req, res) => {
                 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
                 const msg = {
                 to: 'mspangler@litchfieldinn.com',
-                from: 'proposals@salesapp.com',
+                from: 'proposals@groupify.app',
                 subject: 'New Proposal Submission',
                 html: output,
                 };
@@ -159,6 +135,14 @@ router.put('/edit/:id', (req, res) => {
           let roomTypeArray = [];
           let roomsPerNightArray = [];
           let purposedRateArray = [];
+
+          let errors = checkForInputErrors(req.body);
+          if(errors.length > 0) {
+            req.flash('error_msg', 'Please ensure the proposal is completely filled out.');
+            res.redirect(`/groups/edit/${group._id}`)
+         }
+
+
           for(var key in req.body) {
               if(key.includes('roomTypeSelect')) {
                   roomTypeArray.push(req.body[key])
@@ -301,7 +285,7 @@ router.put('/edit/:id', (req, res) => {
                         <li ${conferenceRevenueStyleClass}>Conference Space Revenue: ${group.conferenceRevenue}</li>
                         <li ${otherNotesStyleClass}>Other notes: ${group.otherNotes}</li>
                     </ul>
-                    <p>To review this updated proposal, please <a href="http://localhost:3000/groups/review/${group._id}">login.</a></p>
+                    <p>To review this updated proposal, please <a href="https://groupify.app/groups/review/${group._id}">login.</a></p>
                     `;
 
                    
@@ -309,13 +293,13 @@ router.put('/edit/:id', (req, res) => {
                     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
                     const msg = {
                     to: 'mspangler@litchfieldinn.com',
-                    from: 'proposals@salesapp.com',
+                    from: 'proposals@groupify.app',
                     subject: 'Proposal Revision',
                     html: output,
                     };
                     sgMail.send(msg);
                     req.flash('success_msg', 'Proposal updated.');
-                    res.redirect('/groups/proposals');
+                    res.redirect('/groups/proposals')
                 })
                 .catch(err => console.log(err));
         })
@@ -360,7 +344,7 @@ router.get('/edit/:id', ensureAuthenticated, (req, res) => {
     Group.findOne({_id: req.params.id})
         .then(group => {
             
-            res.render('groups/edit', {group: group, msg: 'Fetching updates...'});
+            res.render('groups/edit', {group: group});
         })
         .catch(err => console.log(err));
 });

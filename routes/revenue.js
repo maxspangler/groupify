@@ -9,6 +9,7 @@ moment.suppressDeprecationWarnings = true;
 
 const {ensureAuthenticated} = require('../helpers/auth');
 const {calculateTotalGroupRevenue} = require('../helpers/calculateTotalRevenue');
+const {sendEmail} = require('../helpers/emailHandler');
 
 router.get('/dashboard', ensureAuthenticated, (req, res) => {
     Group.find({})
@@ -23,13 +24,7 @@ router.get('/dashboard', ensureAuthenticated, (req, res) => {
             // Figure out how many submitted today, week, month
             let proposalsToday      = [],
                 proposalsThisWeek   = [],
-                proposalsThisMonth  = [],
-                confirmedToday      = [],
-                confirmedThisWeek   = [],
-                confirmedThisMonth  = [],
-                deniedToday         = [],
-                deniedThisWeek      = [],
-                deniedThisMonth     = [];
+                proposalsThisMonth  = [];
           
             let today = moment().format('D MMM, YYYY');
             let prevWeekStart = moment().subtract(7,'d').format('D MMM, YYYY');
@@ -73,11 +68,17 @@ router.get('/review/:id', ensureAuthenticated, (req, res) => {
             let rateArray = Array.from(group.purposedRate);
             let roomsArray = Array.from(group.roomsPerNight);
             let totalRevenue = calculateTotalGroupRevenue(rateArray,roomsArray);
+            let arrivalDate = moment(group.dateFrom).format('MM/DD/YY');
+            let departureDate = moment(group.dateTo).format('MM/DD/YY');
+            let submissionTime = moment(group.time).format('MM/DD/YY');
 
             res.render('revenue/review', 
             {
                 group: group,
-                totalRevenue
+                totalRevenue,
+                arrivalDate,
+                departureDate,
+                submissionTime
             });
         })
         .catch(err => console.log(err));
@@ -89,6 +90,18 @@ router.put('/review/update', (req, res) => {
             group.managerStatus = req.body.data.status;
             group.save()
                 .then(group => {
+                    // Send email to Sales Agent, indicating status (Approve, Deny)
+                    let output = 
+                    `
+                    <p>Your Revenue Manager has updated the status for a proposal.</p>
+                    <p>${group.name} has been updated to a status of ${group.managerStatus}</p>
+                    `;
+                    sendEmail(
+                        'mspangler@litchfieldinn.com', 
+                        'revenue@groupify.app',
+                        'Proposal Update',
+                         output
+                        );
                     res.json({msg: group.managerStatus});
                 })
                 .catch(err => console.log(err));
@@ -130,5 +143,7 @@ router.post('/review/comment/:id', (req, res) => {
             .catch(err => console.log(err));
         
     });
+
+
 
 module.exports = router;

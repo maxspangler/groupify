@@ -19,6 +19,7 @@ const groupSchema = new mongoose.Schema({
    managerStatus: {type: String, default: "Pending Review"},
    cancelationReason: {type: String},
    time : {type: Date, default: Date.now},
+   marketType: {type: String, required: true},
    comments: [{
     commentBody: {
       type: String,

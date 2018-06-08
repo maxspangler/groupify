@@ -1,4 +1,8 @@
-<h1>Create</h1>
+<style>
+  body {background-color: #F5F6F5;}
+</style>
+<h4 class="fontColorStyle mt-2">Create Proposal</h4>
+<hr>
 <form action="/groups/create/new" method="POST" onsubmit="groupSubmitBtn.disabled = true; return true;">
     <div class="form-group">
         <label for="groupName">Group Name</label>
@@ -36,8 +40,8 @@
       <input type="number" class="form-control" name="roomsPerNight" placeholder="#" min="0">
     </div>
     </div>
-    <button id="addmore" class="btn btn-secondary">Add Another Room Type</button>
-    <div class="form-group">
+    <button id="addmoreBtn" class="btn btn-secondary mt-2"><i class="fas fa-plus"></i>  Room Type</button>
+    <div class="form-group mt-4 mb-4">
         <label for="sourceOfBusiness">Source of Business</label>
         <select id="sourceOfBusiness" class="form-control col-md-4" name="sourceOfBusiness">
             <option selected disabled>Choose...</option>
@@ -46,10 +50,20 @@
             <option>Repeat Guest</option>
       </select>
     </div>
+    <div class="form-group mb-4">
+        <label for="marketType">Market Type</label>
+        <select id="marketType" class="form-control col-md-4" name="marketType">
+            <option selected disabled>Choose...</option>
+            <option>Corporate</option>
+            <option>SMERF</option>
+            <option>Wedding</option>
+            <option>Other</option>
+        </select>
+    </div>
     <div class="form-group">
-        <label>Conference Space:  </label>
+        <label>Conference Space:</label>
         <div class="form-check form-check-inline">
-            <input id="radioInputYes" class="form-check-input" type="radio" name="conferenceOption" id="conferenceYes" value="Yes">
+            <input id="radioInputYes" class="form-check-input ml-1" type="radio" name="conferenceOption" id="conferenceYes" value="Yes">
             <label class="form-check-label" for="conferenceYes">Yes</label>
         </div>
         <div class="form-check form-check-inline">
@@ -59,23 +73,23 @@
     </div>
     <div id="conferenceRevenue" class="form-row hidden">
         <div class="form-group col-xs-2">
-            <label for="conferenceRevenue">Cost</label>
+            <label for="conferenceRevenue">Cost:</label>
             <input id="conferenceRevenueInput" type="number" class="form-control" name="conferenceRevenue" placeholder="$" min="0">
         </div>
     </div>
 
-    <div class="input-group">
-        <label for="otherNotes">Notes</label>
+    <div class="form-group">
+        <label id="otherNotesLabel" for="otherNotes"><i class="fas fa-pencil-alt"></i> Notes:</label>
         <textarea class="form-control" name="otherNotes" id="otherNotes" rows="3"></textarea>
     </div> 
-  <button id="groupSubmitBtn" type="submit" class="btn btn-primary">Submit</button>
+  <button id="groupSubmitBtn" type="submit" class="btn btn-primary mt-2 mb-5">Submit</button>
 </form>
 
 
 <script>
     const maxFieldCount = 5;
     let currentFieldCount = 1;
-    let addMore = document.getElementById('addmore');
+    let addMore = document.getElementById('addmoreBtn');
     let holdingContainer = document.getElementById('row-1');
     addMore.addEventListener('click', addMoreFields);
     function addMoreFields(e) {
@@ -84,7 +98,7 @@
             currentFieldCount++;
             let container = document.createElement('div');
             container.innerHTML = `
-                    <div class="form-row" id="row-${currentFieldCount}"><button type="button" class="btn btn-secondary btn-sm" id="deleteBtn"><i id="deleteTrashIcon" class="fas fa-trash-alt"></i></button>
+                    <div class="form-row" id="row-${currentFieldCount}">
                         <div class="form-group col-md-4">
                         <label for="roomTypeSelect-${currentFieldCount}">Room Type</label>
                             <select id="roomTypeSelect" class="form-control" name="roomTypeSelect-${currentFieldCount}">
@@ -104,6 +118,7 @@
                         <label for="roomsPerNight-${currentFieldCount}">Rooms per Night</label>
                         <input type="number" class="form-control" name="roomsPerNight-${currentFieldCount}" placeholder="#">
                         </div>
+                        <button type="button" class="btn btn-secondary btn-sm ml-2" id="deleteBtn"><i id="deleteTrashIcon" class="fas fa-trash-alt"></i></button>
                     </div>        
             `;
             insertAfter(container,holdingContainer);
@@ -114,10 +129,11 @@
         deleteButton.addEventListener('click', (e) => {
             currentFieldCount--;
             if(e.target.type === 'button') {
-                e.target.parentNode.remove();
+                removeFadeOut(e.target.parentNode, 1000);
+                
             }
             else if(e.target.type === undefined) {
-                e.target.parentNode.parentNode.parentNode.remove()
+                removeFadeOut(e.target.parentNode.parentNode.parentNode, 1000);
             }  
             if(currentFieldCount != maxFieldCount) addMore.disabled = false;
         });
@@ -141,5 +157,15 @@
             conferenceRevenue.classList.add('hidden');
         }
     };  
+
+
+    function removeFadeOut(el, speed) {
+        var seconds = speed/1000;
+        el.style.transition = "opacity "+seconds+"s ease";
+        el.style.opacity = 0;
+        setTimeout(function() {
+            el.remove();
+        }, speed);
+    }
 
 </script>
