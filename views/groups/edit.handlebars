@@ -77,8 +77,8 @@
             let container = document.createElement('div');
             container.innerHTML = `
                 <div class="form-row" id="row-${i}">
-                        <div class="form-group col-md-4">
-                        <label for="roomTypeSelect-${i}">Room Type</label>
+                        <div class="form-group col-md-2">
+                            <label for="roomTypeSelect-${i}">Room Type</label>
                             <select id="roomTypeSelect-${i}" class="form-control" name="roomTypeSelect-${i}">
                                 <option selected disabled>Choose...</option>
                                 <option value="LDG">LDG</option>
@@ -86,15 +86,23 @@
                                 <option value="TOF">TOF</option>
                                 <option value="DOF">DOF</option>
                                 <option value="Villa">Villa</option>
-                        </select>
+                            </select>
                         </div>
-                        <div class="form-group col-xs-2">
-                        <label for="purposedRate-${i}">Purposed Rate</label>
-                        <input id="purposedRate-${i}" type="number" class="form-control" name="purposedRate-${i}" placeholder="$" value="">  
+                        <div class="form-group col-md-2 col-xs-2">
+                            <label for="bestAvailableRate-${i}">BAR Rate</label>
+                            <input id="bestAvailableRate-${i}" type="number" class="form-control" name="bestAvailableRate" placeholder="$" min="0">  
                         </div>
-                        <div class="form-group col-xs-2">
-                        <label for="roomsPerNight-${i}">Rooms per Night</label>
-                        <input id="roomsPerNight-${i}" type="number" class="form-control" name="roomsPerNight-${i}" placeholder="#">
+                        <div class="form-group col-md-2 col-xs-2">
+                            <label for="discountPercentage-${i}">Discount %</label>
+                            <input id="discountPercentage-${i}" type="number" class="form-control" name="discountPercentage" placeholder="%" min="0" value=0>  
+                        </div>
+                        <div class="form-group col-md-2 col-xs-2">
+                            <label for="purposedRate-${i}">Purposed Rate</label>
+                            <input id="purposedRate-${i}" type="number" class="form-control" name="purposedRate-${i}" placeholder="$" value="">  
+                        </div>
+                        <div class="form-group col-md-2 col-xs-2">
+                            <label for="roomsPerNight-${i}">Rooms per Night</label>
+                            <input id="roomsPerNight-${i}" type="number" class="form-control" name="roomsPerNight-${i}" placeholder="#">
                         </div>
                         <button id="removeBtn-${i}" type="button" class="btn btn-secondary btn-sm ml-2 deleteBtnStyle" onclick="removeInput(${i})"><i class="fas fa-trash-alt deleteTrashIconStyle"></i></button>
                     </div>
@@ -133,8 +141,8 @@
         let container = document.createElement('div');
         container.innerHTML = `
             <div class="form-row" id="row-${i}">
-                <div class="form-group col-md-4">
-                <label for="roomTypeSelect-${i}">Room Type</label>
+                <div class="form-group col-md-2">
+                    <label for="roomTypeSelect-${i}">Room Type</label>
                     <select id="roomTypeSelect-${i}" class="form-control" name="roomTypeSelect-${i}">
                         <option selected disabled>Choose...</option>
                         <option value="LDG">LDG</option>
@@ -144,11 +152,19 @@
                         <option value="Villa">Villa</option>
                     </select>
                 </div>
-                <div class="form-group col-xs-2">
+                <div class="form-group col-md-2 col-xs-2">
+                    <label for="bestAvailableRate-${i}">BAR Rate</label>
+                    <input id="bestAvailableRate-${i}" type="number" class="form-control" name="bestAvailableRate" placeholder="$" min="0">  
+                </div>
+                <div class="form-group col-md-2 col-xs-2">
+                    <label for="discountPercentage-${i}">Discount %</label>
+                    <input id="discountPercentage-${i}" type="number" class="form-control" name="discountPercentage" placeholder="%" min="0" value=0>  
+                </div>
+                <div class="form-group col-md-2 col-xs-2">
                 <label for="purposedRate-${i}">Purposed Rate</label>
                 <input id="purposedRate-${i}" type="number" class="form-control" name="purposedRate-${i}" placeholder="$" value="" min="0">  
                 </div>
-                <div class="form-group col-xs-2">
+                <div class="form-group col-md-2 col-xs-2">
                 <label for="roomsPerNight-${i}">Rooms per Night</label>
                 <input id="roomsPerNight-${i}" type="number" class="form-control" name="roomsPerNight-${i}" placeholder="#" min="0">
                 </div>

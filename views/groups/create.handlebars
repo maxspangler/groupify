@@ -19,7 +19,7 @@
         </div>
     </div>
     <div class="form-row" id="row-1">
-    <div class="form-group col-md-4">
+    <div class="form-group col-md-2">
       <label for="roomTypeSelect">Room Type</label>
       {{!-- we are removing the - 1 from room type select --}}
         <select id="roomTypeSelect" class="form-control" name="roomTypeSelect">
@@ -31,11 +31,19 @@
             <option>Villa</option>
       </select>
     </div>
-    <div class="form-group col-xs-2">
-      <label for="purposedRate">Purposed Rate</label>
-      <input type="number" class="form-control" name="purposedRate" placeholder="$" min="0">  
+    <div class="form-group col-md-2 col-xs-2">
+      <label for="bestAvailableRate">BAR Rate</label>
+      <input id="bestAvailableRate" type="number" class="form-control" name="bestAvailableRate" placeholder="$" min="0">  
     </div>
-    <div class="form-group col-xs-2">
+    <div class="form-group col-md-2 col-xs-2">
+      <label for="discountPercentage">Discount % (ex: .10)</label>
+      <input id="discountPercentage" type="number" class="form-control" name="discountPercentage" placeholder="%" min="0" value=0>  
+    </div>
+    <div class="form-group col-md-2 col-xs-2">
+      <label for="purposedRate">Purposed Rate</label>
+      <input id="purposedRate" type="number" class="form-control" name="purposedRate" placeholder="$" min="0">  
+    </div>
+    <div class="form-group col-md-2 col-xs-2">
       <label for="roomsPerNight">Rooms per Night</label>
       <input type="number" class="form-control" name="roomsPerNight" placeholder="#" min="0">
     </div>
@@ -74,7 +82,7 @@
     <div id="conferenceRevenue" class="form-row hidden">
         <div class="form-group col-xs-2">
             <label for="conferenceRevenue">Cost:</label>
-            <input id="conferenceRevenueInput" type="number" class="form-control" name="conferenceRevenue" placeholder="$" min="0">
+            <input id="conferenceRevenueInput" type="number" class="form-control" name="conferenceRevenue" value="0" min="0">
         </div>
     </div>
 
@@ -99,7 +107,7 @@
             let container = document.createElement('div');
             container.innerHTML = `
                     <div class="form-row" id="row-${currentFieldCount}">
-                        <div class="form-group col-md-4">
+                        <div class="form-group col-md-2">
                         <label for="roomTypeSelect-${currentFieldCount}">Room Type</label>
                             <select id="roomTypeSelect" class="form-control" name="roomTypeSelect-${currentFieldCount}">
                                 <option selected disabled>Choose...</option>
@@ -110,11 +118,19 @@
                                 <option value="Villa">Villa</option>
                         </select>
                         </div>
-                        <div class="form-group col-xs-2">
-                        <label for="purposedRate-${currentFieldCount}">Purposed Rate</label>
-                        <input type="number" class="form-control" name="purposedRate-${currentFieldCount}" placeholder="$">  
+                        <div class="form-group col-md-2 col-xs-2">
+                            <label for="bestAvailableRate-${currentFieldCount}">BAR Rate</label>
+                            <input id="bestAvailableRate-${currentFieldCount}" type="number" class="form-control" name="bestAvailableRate-${currentFieldCount}" placeholder="$" min="0">  
                         </div>
-                        <div class="form-group col-xs-2">
+                        <div class="form-group col-md-2 col-xs-2">
+                            <label for="discountPercentage-${currentFieldCount}">Discount % (ex: .10)</label>
+                            <input id="discountPercentage-${currentFieldCount}" type="number" class="form-control" name="discountPercentage-${currentFieldCount}" placeholder="%" min="0" value=0>  
+                        </div>
+                        <div class="form-group col-md-2 col-xs-2">
+                        <label for="purposedRate-${currentFieldCount}">Purposed Rate</label>
+                        <input type="number" id="purposedRate-${currentFieldCount}" class="form-control" name="purposedRate-${currentFieldCount}" placeholder="$">  
+                        </div>
+                        <div class="form-group col-md-2 col-xs-2">
                         <label for="roomsPerNight-${currentFieldCount}">Rooms per Night</label>
                         <input type="number" class="form-control" name="roomsPerNight-${currentFieldCount}" placeholder="#">
                         </div>
@@ -168,4 +184,47 @@
         }, speed);
     }
 
+    {{!-- function calculateDiscount() {
+        let bestAvailableRate = document.getElementById('bestAvailableRate');
+        let discountPercentage = document.getElementById('discountPercentage');
+        let purposedRate = document.getElementById('purposedRate');
+        bestAvailableRate.addEventListener('keyup', () => {
+            let val1 = bestAvailableRate.value;
+            let val2 = Number("." + discountPercentage.value);
+            let toSubtract = val1 * val2;
+            let result = val1 - toSubtract;
+            purposedRate.value = result;
+        });
+            discountPercentage.addEventListener('keyup', () => {
+            let val1 = bestAvailableRate.value;
+            let val2 = Number("." + discountPercentage.value);
+            let toSubtract = val1 * val2;
+            let result = val1 - toSubtract;
+            purposedRate.value = result;
+        });
+    } --}}
+
+    {{!-- calculateDiscount() --}}
+
+    document.querySelector('body').addEventListener('click', function(event) {
+        let target = document.activeElement;
+
+        if(target.id.includes('bestAvailable')) { 
+            let bestAvailableTarget = target; 
+            let discountField = document.getElementById(bestAvailableTarget.id).parentElement.parentElement.children[2].children[1];
+            let proposedRate = document.getElementById(bestAvailableTarget.id).parentElement.parentElement.children[3].children[1];
+
+            bestAvailableTarget.addEventListener('keyup', ()=> {
+                let subtract = Number(bestAvailableTarget.value) * Number(discountField.value);
+                let result = Number(bestAvailableTarget.value) - subtract;
+                proposedRate.value = Math.round(result * 100) / 100;
+            })  
+
+            discountField.addEventListener('keyup', () => {
+                let subtract = Number(bestAvailableTarget.value) * Number(discountField.value);
+                let result = Number(bestAvailableTarget.value) - subtract;
+                proposedRate.value = Math.round(result * 100) / 100;;
+            }) 
+        }
+    });
 </script>

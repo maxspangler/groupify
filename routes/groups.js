@@ -8,6 +8,7 @@ const {ensureAuthenticated} = require('../helpers/auth');
 const {arraysEqual} = require('../helpers/array');
 const {calculateTotalGroupRevenue} = require('../helpers/calculateTotalRevenue');
 const {checkForInputErrors} = require('../helpers/checkInputFields');
+const {sendEmail} = require('../helpers/emailHandler');
 
 router.get('/create', ensureAuthenticated, (req, res) => {
     res.render('groups/create');
@@ -88,9 +89,8 @@ router.post('/create/new', (req, res) => {
                     <li>Conference Space Requested: ${group.conferenceSpace}</li>
                     <li>Conference Space Revenue: ${group.conferenceRevenue}</li>
                     <li>Other notes: ${group.otherNotes}</li>
-
                 </ul>
-                <p>To review this proposal, please <a href="http://localhost:3000/groups/review/${group._id}">login.</a></p>
+                <p>To review this proposal, please <a href="http://localhost:3000/revenue/review/${group._id}">login.</a></p>
                 `;
                 
                 function createTable() {
@@ -107,15 +107,11 @@ router.post('/create/new', (req, res) => {
                     }
                     return table;
                 }
-                const sgMail = require('@sendgrid/mail');
-                sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-                const msg = {
-                to: 'mspangler@litchfieldinn.com',
-                from: 'proposals@groupify.app',
-                subject: 'New Proposal Submission',
-                html: output,
-                };
-                sgMail.send(msg);
+                sendEmail(
+                    'mspangler@litchfieldinn.com',
+                    'proposals@groupify.app', 
+                    'New Proposal Submission', 
+                    output);
 
                 req.flash('success_msg', 'A new group proposal has been created.');
                 res.redirect('/groups/proposals')
@@ -288,16 +284,11 @@ router.put('/edit/:id', (req, res) => {
                     <p>To review this updated proposal, please <a href="https://groupify.app/groups/review/${group._id}">login.</a></p>
                     `;
 
-                   
-                    const sgMail = require('@sendgrid/mail');
-                    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-                    const msg = {
-                    to: 'mspangler@litchfieldinn.com',
-                    from: 'proposals@groupify.app',
-                    subject: 'Proposal Revision',
-                    html: output,
-                    };
-                    sgMail.send(msg);
+                    sendEmail(
+                        'mspangler@litchfieldinn.com',
+                        'proposals@groupify.app', 
+                        'Proposal Revision', 
+                        output);
                     req.flash('success_msg', 'Proposal updated.');
                     res.redirect('/groups/proposals')
                 })
@@ -334,8 +325,18 @@ router.get('/:id', ensureAuthenticated, (req, res) => {
         .populate('user')
         .populate('comments.commentUser')
         .then(group => {
-            let user = JSON.stringify(req.user);
-            res.render('groups/show', {group: group, user: user});
+            let arrivalDate = moment(group.dateFrom).format('MM/DD/YY');
+            let departureDate = moment(group.dateTo).format('MM/DD/YY');
+            let submissionTime = moment(group.time).format('MM/DD/YY');
+            let salesAgent = JSON.stringify(req.user);
+            res.render('groups/show', 
+                {
+                    group: group, 
+                    arrivalDate,
+                    salesAgent,
+                    departureDate,
+                    submissionTime
+                });
         })
         .catch(err => console.log(err));
 });

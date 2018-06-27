@@ -67,6 +67,7 @@ router.get('/profile/:id', ensureAuthenticated, (req, res) => {
     .catch(err => console.log(err)); 
 });
 
+
 // Login Route with role forking
 router.post('/login', passport.authenticate('local', {
     failureRedirect: '/users/login',
@@ -79,6 +80,8 @@ router.post('/login', passport.authenticate('local', {
       res.redirect('/sales/dashboard')
     }
   });
+
+
 
 
 // Register Form POST
