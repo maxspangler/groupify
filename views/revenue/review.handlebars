@@ -1,5 +1,42 @@
 <style>
-  body {background-color: #F5F6F5;}
+body {background-color: #F5F6F5;}
+    /* Icon pulse */
+.requiredIcon {
+    color: red;
+}
+.fa-pulse {
+	display: inline-block;
+	-moz-animation: pulse 2s infinite linear;
+	-o-animation: pulse 2s infinite linear;
+	-webkit-animation: pulse 2s infinite linear;
+	animation: pulse 2s infinite linear;
+}
+
+@-webkit-keyframes pulse {
+	0% { opacity: 1; }
+	50% { opacity: 0; }
+	100% { opacity: 1; }
+}
+@-moz-keyframes pulse {
+	0% { opacity: 1; }
+	50% { opacity: 0; }
+	100% { opacity: 1; }
+}
+@-o-keyframes pulse {
+	0% { opacity: 1; }
+	50% { opacity: 0; }
+	100% { opacity: 1; }
+}
+@-ms-keyframes pulse {
+	0% { opacity: 1; }
+	50% { opacity: 0; }
+	100% { opacity: 1; }
+}
+@keyframes pulse {
+	0% { opacity: 1; }
+	50% { opacity: 0; }
+	100% { opacity: 1; }
+}
 </style>
 <h4 class="fontColorStyle">Proposal Review</h4>
 <hr>
@@ -9,26 +46,33 @@
     <div class="container">
       <h1 class="display-4">{{group.name}}</h1>
       <p class="text-muted">
-        A {{group.marketType}} market segment group arriving on <span class="reviewTimeStyle">{{arrivalDate}}</span> and departing on <span class="reviewTimeStyle">{{departureDate}}</span>.
+        A {{group.marketType}} market segment group arriving on <span class="reviewTimeStyle">{{arrivalDayOfWeek}}, {{arrivalMonth}} {{arrivalDayOfWeekNumber}} {{arrivalYear}}</span> and departing on <span class="reviewTimeStyle">{{departureDayOfWeek}}, {{departureMonth}} {{departureDayOfWeekNumber}} {{departureYear}}</span>.
       </p>
+      {{#if repeatGuestFlag}}
+      <p>This client has stayed with us before. <i class="fas fa-redo fa-spin ml-1"></i></p>
+      {{else}}
+      <p>This is the first time this client has stayed with us.</p>
+      {{/if}}
       <p class="text-muted">Submitted by {{group.user.name}} on {{submissionTime}}.</p>
     </div>
-  </div>
-
+  </div> 
 
   <div class="container">
     <div class="row">
       <div class="card text-center" style="width:100%">
-        <div class="card-header">Rooms & Rates</div>
+        <div class="card-header"><i class="fas fa-stream"></i> Rooms & Rates</div>
         <div class="card-body">
           <div id="insertFormDynamically"></div>
         </div>
       </div>
     </div>
 
+    
+    
+
     <div class="row card-group mt-4 mb-4">
       <div class="card text-center">
-        <div class="card-header">Conference Space</div>
+        <div class="card-header"><i class="fas fa-hotel"></i> Conference Space</div>
         <div class="card-body">
           <p>Requested? {{group.conferenceSpace}}</p>
           <p>Revenue: ${{group.conferenceRevenue}}</p>
@@ -36,9 +80,14 @@
       </div>
 
       <div class="card text-center">
-        <div class="card-header">Additional Notes</div>
+        <div class="card-header"><i class="fas fa-file-signature"></i> Attrition & Requirements</div>
         <div class="card-body">
-          <p class="card-text">{{group.otherNotes}}</p>
+          <p class="card-text">Attrition %: {{group.attritionPercentage}}</p>
+          <p class="card-text">Cut Off: {{cutOffDateFormatted}}</p>
+          <p class="card-text">Decision Due By: {{decisionDueDateFormatted}}</p>
+          {{#if decisionAlert}}
+          <i class="fas fa-exclamation-triangle requiredIcon fa-pulse"></i><span style="font-size: 0.6em"> Decision Due Date approaching!</span>
+          {{/if}}
         </div>
       </div>
 
@@ -53,7 +102,35 @@
       </div>
     </div>
   </div>
+
+  <div class="container">
+    <div class="row card-group mt-4 mb-4">
+
+      <div class="card text-center">
+        <div class="card-header"><i class="fas fa-pencil-alt"></i>Additional Notes</div>
+        <div class="card-body">
+          <p class="card-text">{{group.otherNotes}}</p>
+        </div>
+      </div>
+
+
+        <div class="card text-center">
+        <div class="card-header"><i class="far fa-handshake"></i> Concessions</div>
+        <div class="card-body">
+          <p class="card-text">{{group.concessionField}}</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+
 </div>
+
+
+
+
 
 <div id="reviewBtnContainer" class="container mt-4 mb-4">
   <button id="confirmPurposal" class="btn btn-success mr-4"><i class="far fa-thumbs-up"></i> Approve</button>
@@ -67,13 +144,12 @@
 <div class="container mb-4">
   <div class="card">
       <div class="card-body">
-        <span class="card-title">Comments</span>
+        <span class="card-title"><i class="fas fa-comments"></i> Add Comment</span>
         <form action="/revenue/review/comment/{{group.id}}" method="post">
           <div>
             <textarea class="form-control" name="commentBody"></textarea>
-            <label>Add Comment</label>
           </div>
-          <input class="btn btn-primary" type="submit" value="Submit">
+          <input class="btn btn-primary mt-2" type="submit" value="Submit">
         </form>
       </div>
   </div>
@@ -154,7 +230,7 @@
   }
 
   function fetchFunction(data) {
-    fetch('http://localhost:3000/revenue/review/update', {
+    fetch('https://groupify.app/revenue/review/update', {
     method: 'put',
     mode: 'cors',
     headers: {
@@ -176,16 +252,24 @@
       for(let i = 0; i < checkLen; i++) {
           let container = document.createElement('div');
           container.innerHTML = `
-              <div class="form-row" id="row-${i}">
-                      <div class="form-group col-md-4">
+              <div class="row" id="row-${i}">
+                      <div class="form-group col">
                       <label for="roomTypeSelect-${i}">Room Type:</label>
                       <span id="roomTypeSelect-${i}" name="roomTypeSelect-${i}"></span>
                       </div>
-                      <div class="form-group col-md-4">
-                      <label for="purposedRate-${i}">Purposed Rate: $</label>
+                      <div class="form-group col">
+                      <label style="margin-left:-12px" for="bestAvailableRate-${i}">Best Available Rate: $</label>
+                      <span style="margin-left:0px" id="bestAvailableRate-${i}" name="bestAvailableRate-${i}"></span>  
+                      </div>
+                      <div class="form-group col">
+                      <label for="purposedRate-${i}">Proposed Rate: $</label>
                       <span id="purposedRate-${i}" name="purposedRate-${i}"></span>  
                       </div>
-                      <div class="form-group col-md-4">
+                        <div class="form-group col">
+                      <label for="discountPercentage-${i}">Discount %:</label>
+                      <span id="discountPercentage-${i}" name="discountPercentage-${i}"></span>
+                      </div>
+                      <div class="form-group col">
                       <label for="roomsPerNight-${i}">Rooms per Night:</label>
                       <span id="roomsPerNight-${i}" name="roomsPerNight-${i}"></span>
                       </div>
@@ -201,14 +285,22 @@
       roomsValues = '{{group.roomsPerNight}}',
       roomsArray = roomsValues.split(','),
       typeValues = '{{group.roomType}}',
-      typeArray = typeValues.split(',');
+      typeArray = typeValues.split(','),
+      bestAvailableValues = '{{group.bestAvailableRate}}',
+      bestAvailableArray = bestAvailableValues.split(','),
+      discountPercentageValues = '{{group.discountPercentage}}',
+      discountArray = discountPercentageValues.split(',');
   for(let i = 0; i < checkLen; i++) {
       let purposedRateInput = document.getElementById('purposedRate-' + i);
       let roomsPerNightInput = document.getElementById('roomsPerNight-' + i);
       let roomTypeInput = document.getElementById('roomTypeSelect-' + i);
+      let bestAvailableRateInput = document.getElementById('bestAvailableRate-' + i);
+      let discountPercentageInput = document.getElementById('discountPercentage-' + i);
       roomTypeInput.innerText = typeArray[i];
       purposedRateInput.innerText = rateArray[i];
       roomsPerNightInput.innerText = roomsArray[i];
+      bestAvailableRateInput.innerText = bestAvailableArray[i];
+      discountPercentageInput.innerText = discountArray[i];  
   }
 
 let userArray = document.querySelectorAll('.userBadge');

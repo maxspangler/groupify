@@ -4,22 +4,27 @@
 <h4 class="fontColorStyle">Proposal Status</h4>
 <hr>
 
-  <div id="heroBanner" class="jumbotron mb-4 mt-4">
-    <div class="container">
-      <h1 class="display-4">{{group.name}} <a style="font-size:23px;" title="Edit Details" href="/groups/edit/{{group.id}}"><i class="fas fa-pencil-alt"></i></a></h1>
-      <p class="text-muted">
-        A {{group.marketType}} market segment group arriving on <span class="reviewTimeStyle">{{arrivalDate}}</span> and departing on <span class="reviewTimeStyle">{{departureDate}}</span>.
-      </p>
-      <p class="text-muted">Submitted on {{submissionTime}}.</p>
-    </div>
-  </div>
-  
+    <div id="heroBanner" class="jumbotron mb-4 mt-4">
+      <div class="container">
+        <h1 class="display-4">{{group.name}} <a href="/groups/edit/{{group.id}}"><i style="font-size:0.5em" class="far fa-edit"></i></a></h1>
+        <p class="text-muted">
+          A {{group.marketType}} market segment group arriving on <span class="reviewTimeStyle">{{arrivalDayOfWeek}}, {{arrivalMonth}} {{arrivalDayOfWeekNumber}} {{arrivalYear}}</span> and departing on <span class="reviewTimeStyle">{{departureDayOfWeek}}, {{departureMonth}} {{departureDayOfWeekNumber}} {{departureYear}}</span>.
+        </p>
+        {{#if repeatGuestFlag}}
+        <p>This client has stayed with us before. <i class="fas fa-redo fa-spin ml-1"></i></p>
+        {{else}}
+        <p>This is the first time this client has stayed with us.</p>
+        {{/if}}
+        <p class="text-muted">You submitted on {{submissionTime}}.</p>
+      </div>
+    </div> 
+
   <div class="container">
 
     <div class="card-deck">
 
       <div class="card text-center">
-        <div class="card-header">Client Status</div>
+        <div class="card-header"><i class="fas fa-thermometer-half"></i> Client Status</div>
           <div class="card-body">
             <p><em id="clientStatusParagraph">{{group.clientStatus}}</em></p>
             <div class="form-group">
@@ -32,20 +37,20 @@
                 </select>
             </div>
               <div id="cancelDiv"></div>
-              <button id="submitChangeStatusBtn" class="btn btn-primary">Update Status</button>
+              <button id="submitChangeStatusBtn" class="btn btn-primary" onclick="disableRepeatSubmit()">Update Status</button>
           </div>
         </div>
 
 
       <div class="card text-center ">
-        <div class="card-header">Revenue Manager Status:</div>
+        <div class="card-header"><i class="fas fa-balance-scale"></i> Revenue Manager Status</div>
         <div class="card-body">
           <p class="card-text"><em>{{group.managerStatus}}</em></p>
         </div>
       </div>
 
       <div class="card text-center">
-        <div class="card-header">Contract</div>
+        <div class="card-header"><i class="fas fa-file-signature"></i> Contract</div>
         <div class="card-body">
           <p class="card-text"><em>Uploader goes here</em></p>
         </div>
@@ -74,13 +79,12 @@
     <div id="commentContainer">
       <div class="card">
         <div class="card-body">
-          <span class="card-title">Comments</span>
+          <span class="card-title"><i class="fas fa-comments"></i> Add Comment</span>
           <form action="/groups/comment/{{group.id}}" method="post">
             <div>
               <textarea class="form-control" name="commentBody"></textarea>
-              <label><i class="fas fa-comment"></i> Add Comment</label>
             </div>
-            <input class="btn btn-primary" type="submit" value="Submit">
+            <input class="btn btn-primary mt-2" type="submit" value="Submit">
           </form>
         </div>
       </div>
@@ -166,6 +170,7 @@ buttonSubmit.addEventListener('click', submitUpdate);
 
 // Submit Cancelation Reason
 function submitUpdate(e) {
+
   let statusSelect = document.getElementById('statusUpdateSelect');
   let statusSelectOption = statusSelect.options[statusSelect.selectedIndex].text;
 
@@ -184,7 +189,7 @@ function submitUpdate(e) {
     }
   }
 
-  fetch('http://localhost:3000/groups/update/status', {
+  fetch('https://groupify.app/groups/update/status', {
     method: 'put',
     mode: 'cors',
     headers: {
@@ -204,6 +209,7 @@ function submitUpdate(e) {
       },1000);
     })
     e.preventDefault();
+
 };
 
 // if group has already been canceled, generate input field with existing reason
@@ -234,7 +240,9 @@ function submitUpdate(e) {
     }
   };
 
-  
+  function disableRepeatSubmit() {
+    buttonSubmit.disabled = true;
+  }
 
 
 </script>

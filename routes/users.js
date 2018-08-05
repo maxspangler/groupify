@@ -70,18 +70,11 @@ router.get('/profile/:id', ensureAuthenticated, (req, res) => {
 
 // Login Route with role forking
 router.post('/login', passport.authenticate('local', {
-    failureRedirect: '/users/login',
-    failureFlash: true
+  successReturnToOrRedirect: '/fork',  
+  failureRedirect: '/users/login',
+    failureFlash: true,
   }), (req, res) => {
-    if (req.user.role === 'Revenue Manager') {
-      res.redirect('/revenue/dashboard');
-    }
-    else {
-      res.redirect('/sales/dashboard')
-    }
   });
-
-
 
 
 // Register Form POST

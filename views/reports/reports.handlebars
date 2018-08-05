@@ -63,7 +63,7 @@ function generateReport() {
                 message: 'reportEmitted',
                 date: date
                 }   
-                fetch('http://localhost:3000/reports', {
+                fetch('https://groupify.app/reports', {
                 method: 'post',
                 mode: 'cors',
                 headers: {
@@ -164,7 +164,7 @@ function submitReport() {
                 message: 'reportEmitted',
                 date: date
             }
-            fetch('http://localhost:3000/reports/submit', {
+            fetch('https://groupify.app/reports/submit', {
                 method: 'post',
                 mode: 'cors',
                 headers: {

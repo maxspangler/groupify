@@ -22,7 +22,7 @@ router.get('/dashboard', ensureAuthenticated, (req, res) => {
                     clientStatusArray.push(groups[i]);
                     clientStatusCount++;
                 }
-                if(groups[i].managerStatus === 'Pending Review') {
+                if((groups[i].managerStatus === 'Pending Review') && (groups[i].clientStatus === 'Pending')) {
                     managementStatusArray.push(groups[i]);
                     managementStatusCount++;
                 }

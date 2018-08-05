@@ -24,15 +24,44 @@
 
     <div><button id="addBtn" type="button" class="btn btn-secondary mt-2" onclick="addInput()"><i class="fas fa-plus"></i>  Room Type</button></div>
 
-
-    <div class="form-group mt-4 mb-4">
+    <div class="form-row mt-3">
+    <div class="form-group col-md-2">
         <label for="sourceOfBusiness">Source of Business</label>
-        <select id="sourceOfBusiness" class="form-control col-md-4" name="sourceOfBusiness">
+        <select id="sourceOfBusiness" class="form-control" name="sourceOfBusiness">
             <option selected disabled>Choose...</option>
             <option>Phone</option>
             <option>Contact Form Submission</option>
             <option>Repeat Guest</option>
       </select>
+    </div>
+
+    <div class="form-group col-md-2">
+        <label for="marketType">Market Type</label>
+        <select id="marketType" class="form-control" name="marketType">
+            <option selected disabled>Choose...</option>
+            <option>Corporate</option>
+            <option>SMERF</option>
+            <option>Wedding</option>
+            <option>Other</option>
+        </select>
+    </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group col-md-2">
+            <label for="decisionDueDate"><i class="far fa-calendar-times"></i> Decision Due Date</label>
+            <input type="date" name="decisionDueDate" class="form-control" id="decisionDueDate" value="{{group.decisionDueDate}}">
+        </div>
+
+        <div class="form-group col-md-2">
+            <label for="cutOffDate"><i class="fas fa-stopwatch"></i> Cut-off Date</label>
+            <input type="date" name="cutOffDate" class="form-control" id="cutOffDate" value="{{group.cutOffDate}}">
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group col-md-2 col-xs-2">
+        <label for="attritionPercentage">Attrition Percent</label>
+        <input id="attritionPercentage" type="number" class="form-control" name="attritionPercentage" placeholder="%" min="0" value="{{group.attritionPercentage}}">  
+        </div>
     </div>
 
     <div class="form-group">
@@ -50,9 +79,14 @@
     <div id="conferenceRevenue" class="form-row hidden">
         <div class="form-group col-xs-2">
             <label for="conferenceRevenue">Cost</label>
-            <input id="conferenceRevenueInput" type="number" class="form-control" name="conferenceRevenue" placeholder="$" min="0">
+            <input id="conferenceRevenueInput" type="number" class="form-control" name="conferenceRevenue" value="0" placeholder="$" step="0.01" min="0">
         </div>
     </div>
+
+    <div class="form-group">
+        <label id="concessionLabel" for="concessionField"><i class="far fa-handshake"></i> Concessions:</label>
+        <textarea class="form-control" name="concessionField" id="concessionField" rows="3">{{group.concessionField}}</textarea>
+    </div> 
 
     <div class="form-group">
         <label class="notesStyle" for="otherNotes"><i class="fas fa-pencil-alt"></i> Notes:</label>
@@ -67,10 +101,17 @@
     let checkLen = '{{group.roomType.length}}';
     let updateBtn = document.getElementById('updateBtn');
     let addBtn = document.getElementById('addBtn');
-    // set source of bus
+    
+    // Set Source of Business
     let sourceOfBusiness = '{{group.sourceOfBusiness}}';
     let sourceOfBusinessSelect = document.getElementById('sourceOfBusiness');
     sourceOfBusinessSelect.value = sourceOfBusiness;
+
+    // Set Market Type
+    let marketType = '{{group.marketType}}'
+    let marketTypeSelect = document.getElementById('marketType');
+    marketTypeSelect.value = marketType;
+
     // create div and add fields
     if(checkLen > 0) {
         for(let i = 0; i < checkLen; i++) {
@@ -86,19 +127,20 @@
                                 <option value="TOF">TOF</option>
                                 <option value="DOF">DOF</option>
                                 <option value="Villa">Villa</option>
+                                <option value="OfVilla">OF Villa</option>
                             </select>
                         </div>
                         <div class="form-group col-md-2 col-xs-2">
                             <label for="bestAvailableRate-${i}">BAR Rate</label>
-                            <input id="bestAvailableRate-${i}" type="number" class="form-control" name="bestAvailableRate" placeholder="$" min="0">  
+                            <input id="bestAvailableRate-${i}" type="number" class="form-control" name="bestAvailableRate-${i}" placeholder="$" min="0">  
                         </div>
                         <div class="form-group col-md-2 col-xs-2">
                             <label for="discountPercentage-${i}">Discount %</label>
-                            <input id="discountPercentage-${i}" type="number" class="form-control" name="discountPercentage" placeholder="%" min="0" value=0>  
+                            <input id="discountPercentage-${i}" type="number" class="form-control" name="discountPercentage-${i}" placeholder="%" step="0.01" min="0" value=0>  
                         </div>
                         <div class="form-group col-md-2 col-xs-2">
                             <label for="purposedRate-${i}">Purposed Rate</label>
-                            <input id="purposedRate-${i}" type="number" class="form-control" name="purposedRate-${i}" placeholder="$" value="">  
+                            <input id="purposedRate-${i}" type="number" class="form-control" name="purposedRate-${i}" step="0.01" placeholder="$" value="">  
                         </div>
                         <div class="form-group col-md-2 col-xs-2">
                             <label for="roomsPerNight-${i}">Rooms per Night</label>
@@ -116,14 +158,22 @@
         roomsValues = '{{group.roomsPerNight}}',
         roomsArray = roomsValues.split(','),
         typeValues = '{{group.roomType}}',
-        typeArray = typeValues.split(',');
+        typeArray = typeValues.split(','),
+        discountValues = '{{group.discountPercentage}}',
+        discountArray = discountValues.split(','),
+        bestAvailableValues = '{{group.bestAvailableRate}}',
+        bestAvailableArray = bestAvailableValues.split(',');
     for(let i = 0; i < checkLen; i++) {
         let purposedRateInput = document.getElementById('purposedRate-' + i);
         let roomsPerNightInput = document.getElementById('roomsPerNight-' + i);
         let roomTypeInput = document.getElementById('roomTypeSelect-' + i);
+        let discountPercentageInput = document.getElementById('discountPercentage-' + i);
+        let bestAvailableInput = document.getElementById('bestAvailableRate-' + i);
         roomTypeInput.value = typeArray[i];
         purposedRateInput.value = rateArray[i];
         roomsPerNightInput.value = roomsArray[i];
+        discountPercentageInput.value = discountArray[i];
+        bestAvailableInput.value = bestAvailableArray[i];
     }   
             
     function removeInput(id) {
@@ -150,19 +200,20 @@
                         <option value="TOF">TOF</option>
                         <option value="DOF">DOF</option>
                         <option value="Villa">Villa</option>
+                        <option value="OfVilla">OF Villa</option>
                     </select>
                 </div>
                 <div class="form-group col-md-2 col-xs-2">
                     <label for="bestAvailableRate-${i}">BAR Rate</label>
-                    <input id="bestAvailableRate-${i}" type="number" class="form-control" name="bestAvailableRate" placeholder="$" min="0">  
+                    <input id="bestAvailableRate-${i}" type="number" class="form-control" name="bestAvailableRate-${i}" placeholder="$" min="0">  
                 </div>
                 <div class="form-group col-md-2 col-xs-2">
                     <label for="discountPercentage-${i}">Discount %</label>
-                    <input id="discountPercentage-${i}" type="number" class="form-control" name="discountPercentage" placeholder="%" min="0" value=0>  
+                    <input id="discountPercentage-${i}" type="number" class="form-control" name="discountPercentage-${i}" step="0.01" placeholder="%" min="0" value=0>  
                 </div>
                 <div class="form-group col-md-2 col-xs-2">
                 <label for="purposedRate-${i}">Purposed Rate</label>
-                <input id="purposedRate-${i}" type="number" class="form-control" name="purposedRate-${i}" placeholder="$" value="" min="0">  
+                <input id="purposedRate-${i}" type="number" class="form-control" name="purposedRate-${i}" placeholder="$" step="0.01" value="" min="0">  
                 </div>
                 <div class="form-group col-md-2 col-xs-2">
                 <label for="roomsPerNight-${i}">Rooms per Night</label>
@@ -219,6 +270,29 @@
             el.remove();
         }, speed);
     } 
+
+
+        document.querySelector('body').addEventListener('click', function(event) {
+        let target = document.activeElement;
+
+        if(target.id.includes('bestAvailable')) { 
+            let bestAvailableTarget = target; 
+            let discountField = document.getElementById(bestAvailableTarget.id).parentElement.parentElement.children[2].children[1];
+            let proposedRate = document.getElementById(bestAvailableTarget.id).parentElement.parentElement.children[3].children[1];
+
+            bestAvailableTarget.addEventListener('keyup', ()=> {
+                let subtract = Number(bestAvailableTarget.value) * Number(discountField.value);
+                let result = Number(bestAvailableTarget.value) - subtract;
+                proposedRate.value = Math.round(result * 100) / 100;
+            })  
+
+            discountField.addEventListener('keyup', () => {
+                let subtract = Number(bestAvailableTarget.value) * Number(discountField.value);
+                let result = Number(bestAvailableTarget.value) - subtract;
+                proposedRate.value = Math.round(result * 100) / 100;;
+            }) 
+        }
+    });
 
 
 </script>

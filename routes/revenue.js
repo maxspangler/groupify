@@ -3,6 +3,10 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const Group = require('../models/Group');
 var moment = require('moment');
+// This is the package that allows us to use the breadcrumbs feature; 
+// When the user hits a certain route; we save that url in the session, when they authenticate later,
+// we redirect them to that page
+var ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn
 
 // This relates to how we check the dates for the rev dashboard, specifically, comparing the week dates
 moment.suppressDeprecationWarnings = true;
@@ -11,13 +15,14 @@ const {ensureAuthenticated} = require('../helpers/auth');
 const {calculateTotalGroupRevenue} = require('../helpers/calculateTotalRevenue');
 const {sendEmail} = require('../helpers/emailHandler');
 
+
 router.get('/dashboard', ensureAuthenticated, (req, res) => {
     Group.find({})
         .then(groups => {
             // count pending proposals and send to dashboard; move this to a func later
             let pendingCount = 0;
             for(let i = 0; i < groups.length; i++) {
-                if(groups[i].managerStatus === 'Pending Review') {
+                if((groups[i].managerStatus === 'Pending Review') && (groups[i].clientStatus === 'Pending')) {
                     pendingCount++;
                 }
             }
@@ -59,8 +64,8 @@ router.get('/dashboard', ensureAuthenticated, (req, res) => {
         .catch(err => console.log(err));
     
 });
-
-router.get('/review/:id', ensureAuthenticated, (req, res) => {
+// add a warning or email when decision due date approaches
+router.get('/review/:id', ensureLoggedIn('/users/login'), (req, res) => {
     Group.findOne({_id: req.params.id})
         .populate('user')
         .populate('comments.commentUser')
@@ -68,17 +73,54 @@ router.get('/review/:id', ensureAuthenticated, (req, res) => {
             let rateArray = Array.from(group.purposedRate);
             let roomsArray = Array.from(group.roomsPerNight);
             let totalRevenue = calculateTotalGroupRevenue(rateArray,roomsArray);
+            let arrivalDayOfWeek = moment(group.dateFrom).format('dddd');
+            let arrivalDayOfWeekNumber = moment(group.dateFrom).date();
+            let arrivalMonth = moment(group.dateFrom).format('MMMM');
+            let arrivalYear = moment(group.dateFrom).year();
             let arrivalDate = moment(group.dateFrom).format('MM/DD/YY');
             let departureDate = moment(group.dateTo).format('MM/DD/YY');
+            let departureDayOfWeek = moment(group.dateTo).format('dddd');
+            let departureDayOfWeekNumber = moment(group.dateTo).date();
+            let departureMonth = moment(group.dateTo).format('MMMM');
+            let departureYear = moment(group.dateTo).year();
             let submissionTime = moment(group.time).format('MM/DD/YY');
+            let repeatGuestFlag = false;
+            let cutOffDateFormatted = moment(group.cutOffDate[0]).format('MM/DD/YY')
+            let decisionDueDateFormatted = moment(group.decisionDueDate[0]).format('MM/DD/YY');
+            let decisionAlert = false;
+            // calculate the difference between today and the decision date
+            // send alert if we're within a window
+            let start = moment().format('MM/DD/YY')
+            let end = moment(group.decisionDueDate[0])
+            var diffTime = Math.floor(moment.duration(end.diff(start)).asDays());
+            if(diffTime <= 5) decisionAlert = true;
+
+            if(group.sourceOfBusiness == 'Repeat Guest') {
+                repeatGuestFlag = true;
+            }
+            else {
+                repeatGuestFlag = false;
+            }
 
             res.render('revenue/review', 
             {
-                group: group,
+                group,
                 totalRevenue,
                 arrivalDate,
+                arrivalDayOfWeek,
+                arrivalDayOfWeekNumber,
+                arrivalMonth,
+                arrivalYear,
+                departureDayOfWeek,
+                departureDayOfWeekNumber,
                 departureDate,
-                submissionTime
+                departureMonth,
+                departureYear,
+                submissionTime,
+                repeatGuestFlag,
+                cutOffDateFormatted,
+                decisionDueDateFormatted,
+                decisionAlert
             });
         })
         .catch(err => console.log(err));
@@ -97,7 +139,7 @@ router.put('/review/update', (req, res) => {
                     <p>${group.name} has been updated to a status of ${group.managerStatus}</p>
                     `;
                     sendEmail(
-                        'mspangler@litchfieldinn.com', 
+                        'smikesic@litchfieldinn.com', 
                         'revenue@groupify.app',
                         'Proposal Update',
                          output
@@ -109,7 +151,7 @@ router.put('/review/update', (req, res) => {
 });
 
 // Add Comment Via Review Page
-router.post('/review/comment/:id', (req, res) => {
+router.post('/review/comment/:id', ensureLoggedIn('/users/login'), (req, res) => {
     Group.findOne({
         _id: req.params.id
     })
@@ -123,6 +165,18 @@ router.post('/review/comment/:id', (req, res) => {
     
         group.save()
             .then(group => {
+                let output = 
+                `
+                <p>Your Sales Agent has posted a comment on ${group.name} </p>
+                <p>Comment: ${req.body.commentBody}</p>
+                <p>To review this updated proposal, please <a href="https://groupify.app/revenue/review/${group._id}">login.</a></p>
+                `;
+                sendEmail(
+                    'rroyer@charlestownehotels.com', 
+                    'sales@groupify.app',
+                    'New Comment',
+                     output
+                    );
             res.redirect(`/revenue/review/${group.id}`);
             })
         });
@@ -144,6 +198,5 @@ router.post('/review/comment/:id', (req, res) => {
         
     });
 
-
-
 module.exports = router;
+

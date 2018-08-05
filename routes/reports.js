@@ -108,7 +108,7 @@ router.post('/submit', (req, res) => {
             
             // the receiver field will eventually need to be some sort of property based variable
             sendEmail(
-                'mspangler@litchfieldinn.com', 
+                'maxspangler@gmail.com', 
                 'reporting@groupify.app',
                 'Weekly Sales Report',
                  title + output

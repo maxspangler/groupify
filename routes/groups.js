@@ -2,7 +2,10 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const Group = require('../models/Group');
+const User = mongoose.model('User');
+
 var moment = require('moment');
+var ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn
 
 const {ensureAuthenticated} = require('../helpers/auth');
 const {arraysEqual} = require('../helpers/array');
@@ -27,7 +30,10 @@ router.get('/proposals', ensureAuthenticated, (req, res) => {
 router.post('/create/new', (req, res) => {
     let roomTypeArr     = [],
         roomNightsArr   = [],
-        roomRatesArr    = [];
+        roomRatesArr    = [],
+        discountPercentArr = [],
+        bestAvailableRateArr = [];
+
 
     let errors = checkForInputErrors(req.body);
     if(errors.length > 0) {
@@ -45,6 +51,12 @@ router.post('/create/new', (req, res) => {
                 if(key.includes('roomsPerNight')) {
                     roomNightsArr.push(value);
                 }
+                if(key.includes('discountPercentage')) {
+                    discountPercentArr.push(value);
+                }
+                if(key.includes('bestAvailableRate')) {
+                    bestAvailableRateArr.push(value);
+                }
             }
         );
         
@@ -54,11 +66,17 @@ router.post('/create/new', (req, res) => {
             dateFrom: req.body.groupDateFrom,
             dateTo: req.body.groupDateTo,
             roomType: roomTypeArr,
+            bestAvailableRate: bestAvailableRateArr,
             purposedRate: roomRatesArr,
             roomsPerNight: roomNightsArr,
+            discountPercentage: discountPercentArr,
             sourceOfBusiness: req.body.sourceOfBusiness,
+            decisionDueDate: req.body.decisionDueDate,
+            cutOffDate: req.body.cutOffDate,
+            attritionPercentage: req.body.attritionPercentage,
             conferenceRevenue: req.body.conferenceRevenue,
             conferenceSpace: req.body.conferenceOption,
+            concessionField: req.body.concessionField,
             otherNotes: req.body.otherNotes,
             marketType: req.body.marketType,
             user: req.user
@@ -79,7 +97,9 @@ router.post('/create/new', (req, res) => {
                         <tbody>
                             <tr>
                                 <th>Room Type</th>
+                                <th>Best Available Rate</th>
                                 <th>Purposed Rates</th>
+                                <th>Discount Percentage</th>
                                 <th>Rooms per Night Requested</th>
                             </tr>
                             ${createTable()}
@@ -88,9 +108,10 @@ router.post('/create/new', (req, res) => {
                     <li>Total Group Revenue: ${totalGroupRevenue}</li>
                     <li>Conference Space Requested: ${group.conferenceSpace}</li>
                     <li>Conference Space Revenue: ${group.conferenceRevenue}</li>
+                    <li>Concessions: ${group.concessionField}</li>
                     <li>Other notes: ${group.otherNotes}</li>
                 </ul>
-                <p>To review this proposal, please <a href="http://localhost:3000/revenue/review/${group._id}">login.</a></p>
+                <p>To review this proposal, please <a href="https://groupify.app/revenue/review/${group._id}">login.</a></p>
                 `;
                 
                 function createTable() {
@@ -100,7 +121,9 @@ router.post('/create/new', (req, res) => {
                         table += `
                             <tr>
                                 <td align="center">${roomTypeArr[i]}</td>
+                                <td align="center">${bestAvailableRateArr[i]}</td>
                                 <td align="center">${roomRatesArr[i]}</td>
+                                <td align="center">${discountPercentArr[i]}</td>
                                 <td align="center">${roomNightsArr[i]}</td>
                             </tr>
                         `;
@@ -108,7 +131,7 @@ router.post('/create/new', (req, res) => {
                     return table;
                 }
                 sendEmail(
-                    'mspangler@litchfieldinn.com',
+                    'rroyer@charlestownehotels.com',
                     'proposals@groupify.app', 
                     'New Proposal Submission', 
                     output);
@@ -131,25 +154,36 @@ router.put('/edit/:id', (req, res) => {
           let roomTypeArray = [];
           let roomsPerNightArray = [];
           let purposedRateArray = [];
+          let discountPercentArr = [];
+          let bestAvailableRateArr = [];
 
           let errors = checkForInputErrors(req.body);
           if(errors.length > 0) {
+              console.log(errors)
             req.flash('error_msg', 'Please ensure the proposal is completely filled out.');
             res.redirect(`/groups/edit/${group._id}`)
          }
 
 
-          for(var key in req.body) {
-              if(key.includes('roomTypeSelect')) {
-                  roomTypeArray.push(req.body[key])
-              }
-              else if(key.includes('roomsPerNight')) {
-                    roomsPerNightArray.push(req.body[key])
-              }
-              else if(key.includes('purposedRate')) {
-                    purposedRateArray.push(req.body[key])
-              }
-          }
+         Object.entries(req.body).forEach(
+            ([key, value]) => {
+                if(key.includes('roomTypeSelect')) {
+                    roomTypeArray.push(value);
+                }
+                if(key.includes('purposedRate')) {
+                    purposedRateArray.push(value);
+                }
+                if(key.includes('roomsPerNight')) {
+                    roomsPerNightArray.push(value);
+                }
+                if(key.includes('discountPercentage')) {
+                    discountPercentArr.push(value);
+                }
+                if(key.includes('bestAvailableRate')) {
+                    bestAvailableRateArr.push(value);
+                }
+            }
+        );
 
             // a problem we have now is that, because of how it's currently designed,
             // we can't sort the arrays above because it changes the order
@@ -159,33 +193,46 @@ router.put('/edit/:id', (req, res) => {
            
             // if any changes, highlight them?
            
-            let oldGroup = {};
-            oldGroup.name = group.name;
-            oldGroup.dateFrom = group.dateFrom;
-            oldGroup.dateTo = group.dateTo;
-            oldGroup.roomType = group.roomType;
-            oldGroup.roomsPerNight = group.roomsPerNight;
-            oldGroup.purposedRate = group.purposedRate;
-            oldGroup.sourceOfBusiness = group.sourceOfBusiness;
-            oldGroup.conferenceSpace = group.conferenceSpace;
-            oldGroup.conferenceRevenue = group.conferenceRevenue;
-            oldGroup.otherNotes = group.otherNotes;
+            let oldGroup                = new Group();
+            oldGroup.name               = group.name;
+            oldGroup.dateFrom           = group.dateFrom;
+            oldGroup.dateTo             = group.dateTo;
+            oldGroup.roomType           = group.roomType;
+            oldGroup.bestAvailableRate  = group.bestAvailableRate;
+            oldGroup.roomsPerNight      = group.roomsPerNight;
+            oldGroup.discountPercentage = group.discountPercentage;
+            oldGroup.purposedRate       = group.purposedRate;
+            oldGroup.decisionDueDate    = req.body.decisionDueDate;
+            oldGroup.cutOffDate         = req.body.cutOffDate;
+            oldGroup.attritionPercentage = req.body.attritionPercentage;
+            oldGroup.sourceOfBusiness   = group.sourceOfBusiness;
+            oldGroup.conferenceSpace    = group.conferenceSpace;
+            oldGroup.conferenceRevenue  = group.conferenceRevenue;
+            oldGroup.concessionField    = group.concessionField;
+            oldGroup.otherNotes         = group.otherNotes;
             
             // add updated data to group before re-save                       
-            group.name = req.body.groupName;
-            group.dateFrom = req.body.groupDateFrom;
-            group.dateTo = req.body.groupDateTo;
-            group.roomType = roomTypeArray;
-            group.roomsPerNight = roomsPerNightArray;
-            group.purposedRate = purposedRateArray;
-            group.sourceOfBusiness = req.body.sourceOfBusiness;
-            group.conferenceSpace = req.body.conferenceOption;
-            group.conferenceRevenue = req.body.conferenceRevenue;
-            group.otherNotes = req.body.otherNotes;
+            group.name                  = req.body.groupName;
+            group.dateFrom              = req.body.groupDateFrom;
+            group.dateTo                = req.body.groupDateTo;
+            group.roomType              = roomTypeArray;
+            group.roomsPerNight         = roomsPerNightArray;
+            group.purposedRate          = purposedRateArray;
+            group.discountPercentage    = discountPercentArr;
+            group.bestAvailableRate     = bestAvailableRateArr;
+            group.decisionDueDate       = req.body.decisionDueDate;
+            group.cutOffDate            = req.body.cutOffDate;
+            group.attritionPercentage   = req.body.attritionPercentage;
+            group.sourceOfBusiness      = req.body.sourceOfBusiness;
+            group.conferenceSpace       = req.body.conferenceOption;
+            group.conferenceRevenue     = req.body.conferenceRevenue;
+            group.concessionField       = req.body.concessionField;
+            group.otherNotes            = req.body.otherNotes;
 
             // below we compare fields to figure out what changed
 
             // create style variables
+
             let groupNameStyleClass;
             let dateFromStyleClass;
             let dateToStyleClass;
@@ -196,6 +243,7 @@ router.put('/edit/:id', (req, res) => {
             let conferenceSpaceStyleClass;
             let conferenceRevenueStyleClass;
             let otherNotesStyleClass;
+            let concessionFieldStyleClass;
 
             let oldGroupTotal = calculateTotalGroupRevenue(oldGroup.roomsPerNight, oldGroup.purposedRate);
             let newGroupTotal = calculateTotalGroupRevenue(group.roomsPerNight, group.purposedRate);
@@ -204,6 +252,7 @@ router.put('/edit/:id', (req, res) => {
             let highlightChange = 'style="color:red"';
 
             // check for changes
+
             if(oldGroup.name != group.name) groupNameStyleClass = highlightChange;
             if(oldGroup.dateFrom != group.dateFrom) dateFromStyleClass = highlightChange;
             if(oldGroup.dateTo != group.dateTo) dateToStyleClass = highlightChange;
@@ -211,6 +260,8 @@ router.put('/edit/:id', (req, res) => {
             if(oldGroup.conferenceSpace != group.conferenceSpace) conferenceSpaceStyleClass = highlightChange;
             if(oldGroup.conferenceRevenue != group.conferenceRevenue) conferenceRevenueStyleClass = highlightChange;
             if(oldGroup.otherNotes != group.otherNotes) otherNotesStyleClass = highlightChange;
+            if(oldGroup.concessionField != group.concessionField) concessionFieldStyleClass = highlightChange;
+
 
             
 
@@ -248,6 +299,17 @@ router.put('/edit/:id', (req, res) => {
                 roomsPerNightStyleClass = highlightChange;
             }
 
+            let oldDiscountArray = oldGroup.discountPercentage.slice(0);
+            let newDiscountArray = group.discountPercentage.slice(0);
+            oldDiscountArray.sort();
+            newDiscountArray.sort();
+            if(arraysEqual(oldRoomTypeArray, newRoomTypeArray)) {
+                roomTypeStyleClass = '';
+            }
+            else {
+                roomTypeStyleClass = highlightChange;
+            }
+
        
             
             group.save()
@@ -266,6 +328,7 @@ router.put('/edit/:id', (req, res) => {
                         <li>Total Group Revenue: ${oldGroupTotal}</li>
                         <li>Conference Space Requested: ${oldGroup.conferenceSpace}</li>
                         <li>Conference Space Revenue: ${oldGroup.conferenceRevenue}</li>
+                        <li>Other notes: ${oldGroup.concessionField}</li>
                         <li>Other notes: ${oldGroup.otherNotes}</li>
                     </ul>
                     <div style="display:inline-block"><img src="https://vignette.wikia.nocookie.net/cow-evolution/images/c/c5/Arrow-right.png/revision/latest?cb=20150606221716" hspace="20" height="50px" width="50px"></div>
@@ -279,13 +342,14 @@ router.put('/edit/:id', (req, res) => {
                         <li ${totalGroupRevenueStyleClass}>Total Group Revenue: ${newGroupTotal}</li>
                         <li ${conferenceSpaceStyleClass}>Conference Space Requested: ${group.conferenceSpace}</li>
                         <li ${conferenceRevenueStyleClass}>Conference Space Revenue: ${group.conferenceRevenue}</li>
+                        <li ${concessionFieldStyleClass}>Concession Field: ${group.concessionField}</li>
                         <li ${otherNotesStyleClass}>Other notes: ${group.otherNotes}</li>
                     </ul>
                     <p>To review this updated proposal, please <a href="https://groupify.app/groups/review/${group._id}">login.</a></p>
                     `;
 
                     sendEmail(
-                        'mspangler@litchfieldinn.com',
+                        'rroyer@charlestownehotels.com',
                         'proposals@groupify.app', 
                         'Proposal Revision', 
                         output);
@@ -298,7 +362,7 @@ router.put('/edit/:id', (req, res) => {
 
 
 // Add Comment Via Show Page
-router.post('/comment/:id', (req, res) => {
+router.post('/comment/:id', ensureLoggedIn('/users/login'), (req, res) => {
     Group.findOne({
       _id: req.params.id
     })
@@ -312,6 +376,18 @@ router.post('/comment/:id', (req, res) => {
   
         group.save()
           .then(group => {
+            let output = 
+            `
+            <p>Your Revenue Manager has posted a comment on ${group.name} </p>
+            <p>Comment: ${req.body.commentBody}</p>
+            <p>To review this updated proposal, please <a href="https://groupify.app/groups/${group._id}">login.</a></p>
+            `;
+            sendEmail(
+                'smikesic@litchfieldinn.com', 
+                'revenue@groupify.app',
+                'New Comment',
+                 output
+                );
             res.redirect(`/groups/${group.id}`);
           })
       });
@@ -325,17 +401,45 @@ router.get('/:id', ensureAuthenticated, (req, res) => {
         .populate('user')
         .populate('comments.commentUser')
         .then(group => {
+            let rateArray = Array.from(group.purposedRate);
+            let roomsArray = Array.from(group.roomsPerNight);
+            let totalRevenue = calculateTotalGroupRevenue(rateArray,roomsArray);
+            let arrivalDayOfWeek = moment(group.dateFrom).format('dddd');
+            let arrivalDayOfWeekNumber = moment(group.dateFrom).date();
+            let arrivalMonth = moment(group.dateFrom).format('MMMM');
+            let arrivalYear = moment(group.dateFrom).year();
             let arrivalDate = moment(group.dateFrom).format('MM/DD/YY');
             let departureDate = moment(group.dateTo).format('MM/DD/YY');
+            let departureDayOfWeek = moment(group.dateTo).format('dddd');
+            let departureDayOfWeekNumber = moment(group.dateTo).date();
+            let departureMonth = moment(group.dateTo).format('MMMM');
+            let departureYear = moment(group.dateTo).year();
             let submissionTime = moment(group.time).format('MM/DD/YY');
-            let salesAgent = JSON.stringify(req.user);
+            let repeatGuestFlag = false;
+
+            if(group.sourceOfBusiness == 'Repeat Guest') {
+                repeatGuestFlag = true;
+            }
+            else {
+                repeatGuestFlag = false;
+            }
+            
             res.render('groups/show', 
                 {
-                    group: group, 
+                    group,
+                    totalRevenue,
                     arrivalDate,
-                    salesAgent,
+                    arrivalDayOfWeek,
+                    arrivalDayOfWeekNumber,
+                    arrivalMonth,
+                    arrivalYear,
+                    departureDayOfWeek,
+                    departureDayOfWeekNumber,
                     departureDate,
-                    submissionTime
+                    departureMonth,
+                    departureYear,
+                    submissionTime,
+                    repeatGuestFlag
                 });
         })
         .catch(err => console.log(err));
@@ -353,6 +457,7 @@ router.get('/edit/:id', ensureAuthenticated, (req, res) => {
 router.put('/update/status', (req, res) => {
     Group.findOne({_id: req.body.payload.id})
         .then(group => {
+            let oldStatus = group.clientStatus;
             group.clientStatus = req.body.payload.status;
             if(group.clientStatus == 'Canceled')  {
                 group.cancelationReason = req.body.payload.cancelationReason || '';
@@ -362,6 +467,19 @@ router.put('/update/status', (req, res) => {
             }
             group.save()
                 .then(group => {
+ 
+                    let output = 
+                    `
+                    <p>Your Sales Agent has updated the client status on ${group.name}</p>
+                    <p>Original Status: ${oldStatus}
+                    <p>Updated Status: ${group.clientStatus}</p>
+                    `;
+                    sendEmail(
+                        'rroyer@charlestownehotels.com', 
+                        'sales@groupify.app',
+                        'Client Status Update',
+                        output
+                        );
                     res.json({message: 'Group status updated.'});
                 })
                 .catch(err => console.log(err));

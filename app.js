@@ -8,6 +8,9 @@ var flash = require('connect-flash');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
 const passport = require('passport');
+const multer = require('multer');
+const GridFSBucket = require('multer-gridfs-storage');
+const Grid = require('gridfs-stream');
 
 // Load Models
 require("./models/User");
@@ -29,17 +32,16 @@ const keys = require('./config/keys');
 
 
 mongoose.Promise = global.Promise;
-// mongoose.connect(keys.mongoURI, {
-//   }) 
-//   .then(() => console.log('Connected to MongoDB...'))
-//   .catch(err => console.log(err));
-
-mongoose.connect('mongodb://localhost/sales-app', {
-  })
-  .then(() => console.log('Connected to Dev Mongo Server...'))
+mongoose.connect(keys.mongoURI, {
+  }) 
+  .then(() => console.log('Connected to MongoDB...'))
   .catch(err => console.log(err));
 
-  
+// mongoose.connect('mongodb://localhost/sales-app', {
+//   })
+//   .then(() => console.log('Connected to Dev Mongo Server...'))
+//   .catch(err => console.log(err));
+
 const app = express();
 
 // Configure Express Session
@@ -88,6 +90,7 @@ app.use(function(req, res, next){
   res.locals.user = req.user || null;
   if(res.locals.user) {
      let user = res.locals.user;
+
     if(user.role === 'Sales Agent') {
       res.locals.sales = true;
     }

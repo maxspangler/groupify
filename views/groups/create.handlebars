@@ -29,19 +29,20 @@
             <option>TOF</option>
             <option>DOF</option>
             <option>Villa</option>
+            <option>OF Villa</option>
       </select>
     </div>
     <div class="form-group col-md-2 col-xs-2">
       <label for="bestAvailableRate">BAR Rate</label>
-      <input id="bestAvailableRate" type="number" class="form-control" name="bestAvailableRate" placeholder="$" min="0">  
+      <input id="bestAvailableRate" type="number" class="form-control" name="bestAvailableRate" step="0.01" placeholder="$" min="0">  
     </div>
     <div class="form-group col-md-2 col-xs-2">
       <label for="discountPercentage">Discount % (ex: .10)</label>
-      <input id="discountPercentage" type="number" class="form-control" name="discountPercentage" placeholder="%" min="0" value=0>  
+      <input id="discountPercentage" type="number" class="form-control" name="discountPercentage" placeholder="%" step="0.01" min="0" value=0>  
     </div>
     <div class="form-group col-md-2 col-xs-2">
       <label for="purposedRate">Purposed Rate</label>
-      <input id="purposedRate" type="number" class="form-control" name="purposedRate" placeholder="$" min="0">  
+      <input id="purposedRate" type="number" class="form-control" name="purposedRate" step="0.01" placeholder="$" min="0">  
     </div>
     <div class="form-group col-md-2 col-xs-2">
       <label for="roomsPerNight">Rooms per Night</label>
@@ -49,25 +50,48 @@
     </div>
     </div>
     <button id="addmoreBtn" class="btn btn-secondary mt-2"><i class="fas fa-plus"></i>  Room Type</button>
-    <div class="form-group mt-4 mb-4">
-        <label for="sourceOfBusiness">Source of Business</label>
-        <select id="sourceOfBusiness" class="form-control col-md-4" name="sourceOfBusiness">
-            <option selected disabled>Choose...</option>
-            <option>Phone</option>
-            <option>Contact Form Submission</option>
-            <option>Repeat Guest</option>
-      </select>
-    </div>
-    <div class="form-group mb-4">
-        <label for="marketType">Market Type</label>
-        <select id="marketType" class="form-control col-md-4" name="marketType">
-            <option selected disabled>Choose...</option>
-            <option>Corporate</option>
-            <option>SMERF</option>
-            <option>Wedding</option>
-            <option>Other</option>
+    
+    <div class="form-row mt-3">
+        <div class="form-group col-md-2">
+            <label for="sourceOfBusiness">Source of Business</label>
+            <select id="sourceOfBusiness" class="form-control" name="sourceOfBusiness">
+                <option selected disabled>Choose...</option>
+                <option>Phone</option>
+                <option>Contact Form Submission</option>
+                <option>Repeat Guest</option>
         </select>
+        </div>
+
+        <div class="form-group col-md-2">
+            <label for="marketType">Market Type</label>
+            <select id="marketType" class="form-control" name="marketType">
+                <option selected disabled>Choose...</option>
+                <option>Corporate</option>
+                <option>SMERF</option>
+                <option>Wedding</option>
+                <option>Other</option>
+            </select>
+        </div>
     </div>
+    <div class="form-row">
+        <div class="form-group col-md-2">
+            <label for="decisionDueDate"><i class="far fa-calendar-times"></i> Decision Due Date</label>
+            <input type="date" name="decisionDueDate" class="form-control" id="decisionDueDate">
+        </div>
+
+        <div class="form-group col-md-2">
+            <label for="cutOffDate"><i class="fas fa-stopwatch"></i> Cut-off Date</label>
+            <input type="date" name="cutOffDate" class="form-control" id="cutOffDate">
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group col-md-2 col-xs-2">
+        <label for="attritionPercentage">Attrition Percent</label>
+        <input id="attritionPercentage" type="number" class="form-control" name="attritionPercentage" placeholder="%" min="0">  
+        </div>
+    </div>
+
+
     <div class="form-group">
         <label>Conference Space:</label>
         <div class="form-check form-check-inline">
@@ -82,9 +106,14 @@
     <div id="conferenceRevenue" class="form-row hidden">
         <div class="form-group col-xs-2">
             <label for="conferenceRevenue">Cost:</label>
-            <input id="conferenceRevenueInput" type="number" class="form-control" name="conferenceRevenue" value="0" min="0">
+            <input id="conferenceRevenueInput" type="number" class="form-control" name="conferenceRevenue" value="0" step="0.01" min="0">
         </div>
     </div>
+
+    <div class="form-group">
+        <label id="concessionLabel" for="concessionField"><i class="far fa-handshake"></i> Concessions:</label>
+        <textarea class="form-control" name="concessionField" id="concessionField" rows="3"></textarea>
+    </div> 
 
     <div class="form-group">
         <label id="otherNotesLabel" for="otherNotes"><i class="fas fa-pencil-alt"></i> Notes:</label>
@@ -116,6 +145,7 @@
                                 <option value="TOF">TOF</option>
                                 <option value="DOF">DOF</option>
                                 <option value="Villa">Villa</option>
+                                <option value="OfVilla">OF Villa</option>
                         </select>
                         </div>
                         <div class="form-group col-md-2 col-xs-2">
@@ -124,11 +154,11 @@
                         </div>
                         <div class="form-group col-md-2 col-xs-2">
                             <label for="discountPercentage-${currentFieldCount}">Discount % (ex: .10)</label>
-                            <input id="discountPercentage-${currentFieldCount}" type="number" class="form-control" name="discountPercentage-${currentFieldCount}" placeholder="%" min="0" value=0>  
+                            <input id="discountPercentage-${currentFieldCount}" type="number" class="form-control" name="discountPercentage-${currentFieldCount}" step="0.01" placeholder="%" min="0" value=0>  
                         </div>
                         <div class="form-group col-md-2 col-xs-2">
                         <label for="purposedRate-${currentFieldCount}">Purposed Rate</label>
-                        <input type="number" id="purposedRate-${currentFieldCount}" class="form-control" name="purposedRate-${currentFieldCount}" placeholder="$">  
+                        <input type="number" id="purposedRate-${currentFieldCount}" class="form-control" name="purposedRate-${currentFieldCount}" step="0.01" placeholder="$">  
                         </div>
                         <div class="form-group col-md-2 col-xs-2">
                         <label for="roomsPerNight-${currentFieldCount}">Rooms per Night</label>
@@ -184,27 +214,6 @@
         }, speed);
     }
 
-    {{!-- function calculateDiscount() {
-        let bestAvailableRate = document.getElementById('bestAvailableRate');
-        let discountPercentage = document.getElementById('discountPercentage');
-        let purposedRate = document.getElementById('purposedRate');
-        bestAvailableRate.addEventListener('keyup', () => {
-            let val1 = bestAvailableRate.value;
-            let val2 = Number("." + discountPercentage.value);
-            let toSubtract = val1 * val2;
-            let result = val1 - toSubtract;
-            purposedRate.value = result;
-        });
-            discountPercentage.addEventListener('keyup', () => {
-            let val1 = bestAvailableRate.value;
-            let val2 = Number("." + discountPercentage.value);
-            let toSubtract = val1 * val2;
-            let result = val1 - toSubtract;
-            purposedRate.value = result;
-        });
-    } --}}
-
-    {{!-- calculateDiscount() --}}
 
     document.querySelector('body').addEventListener('click', function(event) {
         let target = document.activeElement;
