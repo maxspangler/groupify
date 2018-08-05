@@ -1,26 +1,30 @@
 <style>
   body {background-color: #F5F6F5;}
+  .requiredIcon {
+      font-size: 0.3em;
+      color: red;
+  }
 </style>
 <h4 class="fontColorStyle mt-2">Create Proposal</h4>
 <hr>
 <form action="/groups/create/new" method="POST" onsubmit="groupSubmitBtn.disabled = true; return true;">
     <div class="form-group">
-        <label for="groupName">Group Name</label>
+        <label for="groupName"><i class="requiredIcon fas fa-asterisk"></i> Group Name</label>
         <input type="text" class="form-control col-md-4" name="groupName" id="groupName" placeholder="Group Name">
     </div>
     <div class="row">
         <div class="form-group col-md-4">
-            <label for="groupDateFrom">Arrival Date</label>
+            <label for="groupDateFrom"><i class="requiredIcon fas fa-asterisk"></i> Arrival Date</label>
             <input type="date" name="groupDateFrom" class="form-control" id="groupDateFrom">
         </div>
         <div class="form-group col-md-4">
-            <label for="groupDateTo">Departure Date</label>
+            <label for="groupDateTo"><i class="requiredIcon fas fa-asterisk"></i> Departure Date</label>
             <input type="date" name="groupDateTo" class="form-control" id="groupDateTo">
         </div>
     </div>
     <div class="form-row" id="row-1">
     <div class="form-group col-md-2">
-      <label for="roomTypeSelect">Room Type</label>
+      <label for="roomTypeSelect"><i class="requiredIcon fas fa-asterisk"></i> Room Type</label>
       {{!-- we are removing the - 1 from room type select --}}
         <select id="roomTypeSelect" class="form-control" name="roomTypeSelect">
             <option selected disabled>Choose...</option>
@@ -53,7 +57,7 @@
     
     <div class="form-row mt-3">
         <div class="form-group col-md-2">
-            <label for="sourceOfBusiness">Source of Business</label>
+            <label for="sourceOfBusiness"><i class="requiredIcon fas fa-asterisk"></i> Source of Business</label>
             <select id="sourceOfBusiness" class="form-control" name="sourceOfBusiness">
                 <option selected disabled>Choose...</option>
                 <option>Phone</option>
@@ -63,7 +67,7 @@
         </div>
 
         <div class="form-group col-md-2">
-            <label for="marketType">Market Type</label>
+            <label for="marketType"><i class="requiredIcon fas fa-asterisk"></i> Market Type</label>
             <select id="marketType" class="form-control" name="marketType">
                 <option selected disabled>Choose...</option>
                 <option>Corporate</option>
@@ -93,7 +97,7 @@
 
 
     <div class="form-group">
-        <label>Conference Space:</label>
+        <label><i class="requiredIcon fas fa-asterisk"></i> Conference Space:</label>
         <div class="form-check form-check-inline">
             <input id="radioInputYes" class="form-check-input ml-1" type="radio" name="conferenceOption" id="conferenceYes" value="Yes">
             <label class="form-check-label" for="conferenceYes">Yes</label>

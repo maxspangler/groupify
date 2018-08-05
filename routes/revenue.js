@@ -85,15 +85,9 @@ router.get('/review/:id', ensureLoggedIn('/users/login'), (req, res) => {
             let departureYear = moment(group.dateTo).year();
             let submissionTime = moment(group.time).format('MM/DD/YY');
             let repeatGuestFlag = false;
-            let cutOffDateFormatted = moment(group.cutOffDate[0]).format('MM/DD/YY')
-            let decisionDueDateFormatted = moment(group.decisionDueDate[0]).format('MM/DD/YY');
+            let cutOffDateFormatted;
+            let decisionDueDateFormatted;
             let decisionAlert = false;
-            // calculate the difference between today and the decision date
-            // send alert if we're within a window
-            let start = moment().format('MM/DD/YY')
-            let end = moment(group.decisionDueDate[0])
-            var diffTime = Math.floor(moment.duration(end.diff(start)).asDays());
-            if(diffTime <= 5) decisionAlert = true;
 
             if(group.sourceOfBusiness == 'Repeat Guest') {
                 repeatGuestFlag = true;
@@ -101,6 +95,27 @@ router.get('/review/:id', ensureLoggedIn('/users/login'), (req, res) => {
             else {
                 repeatGuestFlag = false;
             }
+            // calculate the difference between today and the decision date
+            // send alert if we're within a window
+            if(group.decisionDueDate.length > 0) {
+                decisionDueDateFormatted = moment(group.decisionDueDate[0]).format('MM/DD/YY');
+                let start = moment().format('MM/DD/YY')
+                let end = moment(group.decisionDueDate[0])
+                var diffTime = Math.floor(moment.duration(end.diff(start)).asDays());
+                if(diffTime <= 5) decisionAlert = true;
+
+            } 
+            else {
+                decisionDueDateFormatted = 'None selected.'
+            }
+
+            if(group.cutOffDate.length > 0) {
+                cutOffDateFormatted = moment(group.cutOffDate[0]).format('MM/DD/YY')
+            }
+            else {
+                cutOffDateFormatted = 'None selected.'
+            }
+
 
             res.render('revenue/review', 
             {
